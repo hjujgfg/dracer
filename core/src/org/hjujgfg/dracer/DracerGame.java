@@ -28,12 +28,23 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
+import org.hjujgfg.dracer.world.Floor;
+import org.hjujgfg.dracer.world.ModelSupplier;
+import org.hjujgfg.dracer.world.RenderAction;
+import org.hjujgfg.dracer.world.World;
+import org.hjujgfg.dracer.world.params.ProblemSpeed;
+
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
+import static org.hjujgfg.dracer.util.FloatUtils.bigger;
+import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 
 public class DracerGame extends InputAdapter implements ApplicationListener {
@@ -49,30 +60,21 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	public Environment environment;
 
-	Model model, box;
-	ModelInstance instance, floor, floor1, floor2, houseInstance, houseInstance2;
+	Model model;
+	ModelInstance instance;
 	ModelInstance problemInstance;
 
 	List<ModelInstance> instances;
 	ModelBatch modelBatch;
 
-	final float bound = 45f;
-	float[] pos = {startPos[0], startPos[1], startPos[2]};
-	float[] Vpos = new float[3];
 	final float speed = 2f;
 
 	protected Label label;
-	protected Label crosshair;
 	protected BitmapFont font;
 	protected Stage stage;
 
 	protected long startTime;
 	protected long hits;
-
-
-	final float zone = 12f;
-	boolean isUnder = false;
-	long underFire;
 
 	boolean shouldRotate = false;
 	boolean shouldMoveLeft, shouldMoveRight;
@@ -87,13 +89,17 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	float accelX, accelY, accelZ;
 
-	float problemSpeed = 0.5f;
-	float minimalProblemSpeed = problemSpeed;
-
 	Set<Integer> appliedPointers = new HashSet<>();
 
 	DirectionalShadowLight directionalShadowLight;
 	DirectionalLight directionalLight;
+
+
+	Floor floor;
+	Collection<ModelSupplier> suppliers = new ArrayList<>();
+	List<RenderAction> renderActions = new LinkedList<>();
+
+	World world;
 
 	@Override
 	public void create () {
@@ -137,8 +143,6 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 						ColorAttribute.createSpecular(Color.WHITE),
 						FloatAttribute.createShininess(64f)),
 				VertexAttributes.Usage.Position);
-		houseInstance = new ModelInstance(houseModel);
-		houseInstance2 = new ModelInstance(houseModel);
 
 		instance = new ModelInstance(model);
 
@@ -147,11 +151,6 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 				.setToRotation(0, 0, 1, -90)
 				.rotate(0, 1, 0, -90)
 				.translate(0, 2, 0);
-
-		houseInstance.transform.setToTranslation(0, 50, 20)
-				.rotate(0, 0, 1, 90);
-		houseInstance2.transform.setToTranslation(0, 70, -20)
-				.rotate(0, 0, 1, 90);
 
 		Model arrow1 = builder.createArrow(0, 0, 0, 10, 0, 0,
 				0.2f, 0.02f, 10, GL20.GL_TRIANGLES,
@@ -176,31 +175,17 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		problemInstance = new ModelInstance(problem);
 		problemInstance.transform.setToTranslation(r.nextFloat(), 15, r.nextFloat());
 
-		Model box = builder.createBox(10, 0.2f, 7,
-				new Material(
-						ColorAttribute.createDiffuse(Color.LIGHT_GRAY),
-						ColorAttribute.createSpecular(Color.WHITE),
-						FloatAttribute.createShininess(128f)),
-				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-		floor = new ModelInstance(box);
-		floor1 = new ModelInstance(box);
-		floor2 = new ModelInstance(box);
-
-		floor.transform
-				.setTranslation(0, 0 ,0)
-				.rotate(0, 0, 1, 90);
-		floor1.transform
-				.setToRotation(0, 0, 1, 90)
-				.translate(12, 0, 0);
-		floor2.transform
-				.setToRotation(0, 0, 1, 90)
-				.translate(24, 0, 0);
-
 		instances = new ArrayList<>();
 		instances.add(instance);
-		instances.add(floor);
-		instances.add(floor1);
-		instances.add(floor2);
+
+		floor = new Floor();
+		suppliers.add(floor);
+		renderActions.add(floor);
+		/*world = new World();
+		suppliers.add(world);*/
+
+		suppliers.forEach(supplier -> instances.addAll(supplier.getModels()));
+
 
 		//instances.add(arrowX);
 		//instances.add(arrowY);
@@ -208,29 +193,14 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 		instances.add(problemInstance);
 
-		instances.add(houseInstance);
-		instances.add(houseInstance2);
 		//instances.add(coordsInstance);
 
-		for (int i = 0; i < 3; i++){
-			Vpos[i] = getSpeed();
-		}
-
-
-
-		Vector3 translation = floor1.transform.getTranslation(new Vector3());
-		Gdx.app.log("FLOOR", String.format("Floor created at %f %f %f",
-				translation.x, translation.y, translation.z));
 
 		font = new BitmapFont();
 		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
-		crosshair = new Label("+", new Label.LabelStyle(font, Color.RED));
-		crosshair.scaleBy(30f);
-		crosshair.setPosition(Gdx.graphics.getWidth() / 2 - 3, Gdx.graphics.getHeight() / 2 - 9);
 
 		stage = new Stage();
 		stage.addActor(label);
-		stage.addActor(crosshair);
 
 		startTime = System.currentTimeMillis();
 
@@ -249,23 +219,10 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 		moveProblem();
 		moveVehicleTouch();
-		moveFloor();
 		moveCamera();
 		checkCollision();
 		moveDirectionalLight();
-		/*for (int i = 0; i < 3; i++) {
-			pos[i] += Vpos[i];
-			if (pos[i] <= startPos[i] - bound) {
-				pos[i] = startPos[i] - bound;
-				Vpos[i] = getSpeed();
-			}
-			if (pos[i] >= startPos[i] + bound) {
-				pos[i] = startPos[i] + bound;
-				Vpos[i] = getSpeed();
-			}
-		}
-		cam.position.set(pos[0], pos[1], pos[2]);
-		cam.update();*/
+		renderActions.forEach(RenderAction::render);
 
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -329,12 +286,6 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		Gdx.app.log("INFO", String.format("Touch up happened %d:%d with pointer %d, btn: %d",
 				screenX, screenY, pointer, button));
-		if (isUnder && underFire != 0) {
-			hits += System.currentTimeMillis() - underFire;
-			underFire = 0;
-		} else {
-			hits /= 2;
-		}
 
 		shouldMoveLeft = false;
 		shouldMoveRight = false;
@@ -374,11 +325,11 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 			} else if (part == 2) {
 				mult = 0.2f;
 			} else {
-				mult = - 0.2f;
+				mult = - 0.3f;
 			}
 			instance.transform
 					.rotate(0, 0, 1, barrelRollDirection * 20f)
-					.trn(mult, 0, - barrelRollDirection * 0.3f * Math.max(problemSpeed, 1));
+					.trn(mult, 0, - barrelRollDirection * 0.3f * Math.max(PROBLEM_SPEED.get(), 1));
 			barrelRolCounter --;
 			/*Gdx.app.log("BARREL", String.format("Counter is %d",
 					barrelRolCounter));*/
@@ -400,7 +351,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 				if (!inBarrelRoll) {
 					instance.transform
 							.rotate(0, 0, 1, -0.8f)
-							.trn(0, 0, 0.2f * Math.max(problemSpeed, 1));
+							.trn(0, 0, 0.2f * Math.max(PROBLEM_SPEED.get(), 1));
 				}
 			}
 			if (shouldMoveRight) {
@@ -414,7 +365,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 				}
 				instance.transform
 						.rotate(0, 0, 1, 0.8f)
-						.trn(0, 0, -0.2f * Math.max(problemSpeed, 1));
+						.trn(0, 0, -0.2f * Math.max(PROBLEM_SPEED.get(), 1));
 			}
 		}
 
@@ -445,7 +396,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		if (bigger(direction.x, -5)) {
 			lightDirection = -1;
 		}
-		direction.add( lightDirection * problemSpeed * 0.5f, 0, 0);
+		direction.add( lightDirection * PROBLEM_SPEED.get() * 0.5f, 0, 0);
 	}
 
 	private void moveCamera() {
@@ -482,58 +433,22 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 	}
 
 	private void moveProblem() {
-		if (appliedPointers.size() > 1 || bigger(minimalProblemSpeed, problemSpeed)) {
-			problemSpeed = Math.min(problemSpeed + 0.1f, 2);
-		} else if (bigger(problemSpeed, minimalProblemSpeed)) {
-			problemSpeed -= 0.1f;
+		if (appliedPointers.size() > 1 || PROBLEM_SPEED.isSlow()) {
+			PROBLEM_SPEED.set(Math.min(PROBLEM_SPEED.get() + 0.1f, 2));
+		} else if (PROBLEM_SPEED.isFast()) {
+			PROBLEM_SPEED.change(-0.1f);
 		}
 		Vector3 position;
 		position = problemInstance.transform.getTranslation(new Vector3());
 		if (bigger(position.y, -5)) {
-			problemInstance.transform.translate(0, - problemSpeed, 0);
+			problemInstance.transform.translate(0, - PROBLEM_SPEED.get(), 0);
 		} else {
-			minimalProblemSpeed += 0.01f;
-			problemSpeed += 0.01f;
+			PROBLEM_SPEED.changeMinimal(0.01f);
+			PROBLEM_SPEED.change(0.01f);
 			problemInstance.transform.setTranslation(
 					5 * r.nextFloat(),
 					20 + r.nextInt(10),
 					r.nextFloat() * 5f - 2.5f);
-		}
-	}
-
-	private void moveFloor() {
-		moveOneFloorPlane(floor, 0, 1);
-		moveOneFloorPlane(floor1, 1, 1);
-		moveOneFloorPlane(floor2, 2, 1);
-		moveOneFloorPlane(houseInstance, 0, 2);
-		moveOneFloorPlane(houseInstance2, 0,2);
-	}
-
-	private void moveOneFloorPlane(ModelInstance fl, int x, int y) {
-		Vector3 position;
-		position = fl.transform.getTranslation(new Vector3());
-		if (x == 0 && y == 1) {
-			Gdx.app.log("FLOOR", String.format("Floor now at %f %f %f ",
-					position.x, position.y, position.z));
-		}
-		if (bigger(-10 - x, position.y, 0.00001f)) {
-			fl.transform.setTranslation(0, 24 * y, position.z);
-		} else {
-			fl.transform.translate(- problemSpeed, 0, 0);
-		}
-	}
-
-	private void moveHouse() {
-		Vector3 position;
-		position = houseInstance.transform.getTranslation(new Vector3());
-		/*if (x == 3) {
-			Gdx.app.log("FLOOR", String.format("Floor now at %f %f %f ",
-					position.x, position.y, position.z));
-		}*/
-		if (position.y < - 10) {
-			houseInstance.transform.setTranslation(0, 23 - position.y, 0);
-		} else {
-			houseInstance.transform.translate(0, 0, - problemSpeed);
 		}
 	}
 
@@ -548,8 +463,8 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 						20 + r.nextInt(10),
 						r.nextFloat() * 5f - 2.5f);
 			} else {
-				minimalProblemSpeed = Math.max(minimalProblemSpeed - 0.1f, 0.01f);
-				problemSpeed = -1f * Math.max(1, problemSpeed);
+				PROBLEM_SPEED.setMinimal(Math.max(PROBLEM_SPEED.getMinimal() - 0.1f, 0.01f));
+				PROBLEM_SPEED.set(-1f * Math.max(1, PROBLEM_SPEED.get()));
 			}
 		}
 	}
@@ -576,13 +491,5 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		} else if (bigger(fluct, translation.x)) {
 			instance.transform.trn(0.01f, 0, 0);
 		}
-	}
-
-	private boolean bigger(float f1, float f2) {
-		return bigger(f1, f2, 0.01f);
-	}
-
-	private boolean bigger(float f1, float f2, float precision) {
-		return f1 - f2 >= precision;
 	}
 }
