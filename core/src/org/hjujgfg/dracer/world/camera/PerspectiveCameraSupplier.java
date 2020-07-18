@@ -5,14 +5,18 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 
+import org.hjujgfg.dracer.world.ContextualizedInstance;
+import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.interfaces.CameraSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
+import org.hjujgfg.dracer.world.models.ModelType;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
-import static org.hjujgfg.dracer.world.models.Vehicle.getVehicleTransform;
 
-public class PerspectiveCameraSupplier implements CameraSupplier, RenderAction {
+public class PerspectiveCameraSupplier extends ContextualizedInstance implements CameraSupplier, RenderAction {
+
+    private final static Vector3 TMP = new Vector3();
 
     PerspectiveCamera cam;
 
@@ -21,7 +25,8 @@ public class PerspectiveCameraSupplier implements CameraSupplier, RenderAction {
 
     private boolean reachedFow = false;
 
-    public PerspectiveCameraSupplier() {
+    public PerspectiveCameraSupplier(GameContext context) {
+        super(context);
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.up.set(0, 1, 0);
         cam.position.set(7f, -6f, 0f);
@@ -90,6 +95,6 @@ public class PerspectiveCameraSupplier implements CameraSupplier, RenderAction {
             if (cam.fieldOfView < 120)
             cam.fieldOfView += 5;
         }
-        cam.lookAt(getVehicleTransform().getTranslation(new Vector3()));
+        cam.lookAt(context.getTransform(ModelType.VEHICLE).getTranslation(TMP));
     }
 }

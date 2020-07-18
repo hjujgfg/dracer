@@ -11,23 +11,23 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
+import org.hjujgfg.dracer.world.interfaces.TypedModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
-public class Floor implements ModelSupplier, RenderAction {
+public class Floor implements ModelSupplier, RenderAction, TypedModel {
 
     private final static Model floorPlane, houseModel;
-    private final static List<ModelInstance> floorPlanes = new LinkedList<>();
-    private final static List<ModelInstance> houses = new LinkedList<>();
-    private final static Random r = new Random();
+    private final List<ModelInstance> floorPlanes = new LinkedList<>();
+    private final List<ModelInstance> houses = new LinkedList<>();
 
     private final static Vector3 buffer = new Vector3();
 
@@ -45,7 +45,10 @@ public class Floor implements ModelSupplier, RenderAction {
                         ColorAttribute.createSpecular(Color.WHITE),
                         FloatAttribute.createShininess(64f)),
                 VertexAttributes.Usage.Position);
-        for (int i = 0; i < 5; i ++) {
+    }
+
+    public Floor() {
+        for (int i = 0; i < 10; i ++) {
             ModelInstance instance = new ModelInstance(floorPlane);
             instance.transform.setTranslation(0, 10 * i + 1, 0);
             floorPlanes.add(instance);
@@ -53,19 +56,17 @@ public class Floor implements ModelSupplier, RenderAction {
 
         for (int i = 0; i < 5; i ++) {
             ModelInstance house = new ModelInstance(houseModel);
-            boolean is_left = r.nextInt(2) % 2 == 0;
+            boolean is_left = RANDOM.nextInt(2) % 2 == 0;
             int modifier;
             if (is_left) {
                 modifier = 1;
             } else {
                 modifier = -1;
             }
-            house.transform.setToTranslation(0, r.nextInt(200), modifier * (20 + r.nextInt(50)));
+            house.transform.setToTranslation(0, RANDOM.nextInt(200), modifier * (20 + RANDOM.nextInt(50)));
             houses.add(house);
         }
-
     }
-
 
     @Override
     public Collection<ModelInstance> getModels() {
@@ -100,9 +101,14 @@ public class Floor implements ModelSupplier, RenderAction {
         }*/
         if (bigger(-10, position.y, 0.00001f)) {
             float last = findLastFloorPlane(index);
-            fl.transform.setTranslation(0, last + 12, position.z);
+            fl.transform.setTranslation(50, last + 12, position.z);
         } else {
             fl.transform.translate(0, - PROBLEM_SPEED.get(), 0);
+        }
+        if (bigger(position.x, 0, 0.00001f)) {
+            fl.transform.translate(- Math.min(Math.abs(PROBLEM_SPEED.get()), position.x),
+                    0,
+                    0);
         }
     }
 
@@ -134,5 +140,10 @@ public class Floor implements ModelSupplier, RenderAction {
         } else {
             houseInstance.transform.translate(0, 0, - PROBLEM_SPEED.get());
         }
+    }
+
+    @Override
+    public ModelType getType() {
+        return ModelType.FLOOR;
     }
 }

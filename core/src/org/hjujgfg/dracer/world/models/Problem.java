@@ -11,31 +11,33 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
+import org.hjujgfg.dracer.world.interfaces.TransformSupplier;
+import org.hjujgfg.dracer.world.interfaces.TypedModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.COLLISION_EVENT_PRODUCER;
 import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
-import static org.hjujgfg.dracer.world.models.Vehicle.getVehicleTransform;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
-public class Problem implements ModelSupplier, RenderAction {
+public class Problem implements ModelSupplier, RenderAction, TransformSupplier, TypedModel {
 
     private final static Model problem;
     private final static ModelInstance problemInstance;
     private final static Collection<ModelInstance> instances;
-    private final static Random r = new Random();
 
     static {
         problem = MODEL_BUILDER.createBox(2, 2, 2,
                 new Material(ColorAttribute.createDiffuse(Color.CHARTREUSE)),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         problemInstance = new ModelInstance(problem);
-        problemInstance.transform.setToTranslation(5 * r.nextFloat(), 20 + r.nextInt(10), r.nextFloat() * 5f - 2.5f);
+        problemInstance.transform.setToTranslation(
+                5 * RANDOM.nextFloat(),
+                20 + RANDOM.nextInt(10),
+                RANDOM.nextFloat() * 5f - 2.5f);
         instances = new ArrayList<>(1);
         instances.add(problemInstance);
     }
@@ -56,6 +58,11 @@ public class Problem implements ModelSupplier, RenderAction {
         moveProblem();
     }
 
+    @Override
+    public Matrix4 getTransform() {
+        return problemInstance.transform;
+    }
+
     public static Matrix4 getProblemTransform() {
         return problemInstance.transform;
     }
@@ -73,12 +80,28 @@ public class Problem implements ModelSupplier, RenderAction {
         } else {
             PROBLEM_SPEED.changeMinimal(0.01f);
             PROBLEM_SPEED.change(0.01f);
-            problemInstance.transform.setTranslation(
-                    5 * r.nextFloat(),
-                    20 + r.nextInt(10),
-                    r.nextFloat() * 5f - 2.5f);
+
+            randomizeProblemPosition();
         }
     }
 
+    private void randomizeProblemPosition() {
+        int val = RANDOM.nextInt(2);
+        float xPos = 0;
+        if (val % 2 == 0) {
+            xPos = 2;
+        }
+        val = RANDOM.nextInt(5);
+        float zPos = val * 2 - 5;
+        problemInstance.transform.setTranslation(
+                xPos,
+                20 + RANDOM.nextInt(10),
+                zPos);
 
+    }
+
+    @Override
+    public ModelType getType() {
+        return ModelType.PROBLEM;
+    }
 }

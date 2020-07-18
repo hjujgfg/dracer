@@ -12,14 +12,14 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import org.hjujgfg.dracer.events.CollisionEventReader;
+import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.camera.PerspectiveCameraSupplier;
 import org.hjujgfg.dracer.world.interactions.CollisionInteraction;
+import org.hjujgfg.dracer.world.interactions.PreCollisionInteraction;
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 import org.hjujgfg.dracer.world.light.DirectionalLightSupplier;
-import org.hjujgfg.dracer.world.models.Floor;
-import org.hjujgfg.dracer.world.models.Problem;
-import org.hjujgfg.dracer.world.models.Vehicle;
+import org.hjujgfg.dracer.world.models.ModelHolder;
 import org.hjujgfg.dracer.world.overlay.StatsOverlay;
 
 import java.util.ArrayList;
@@ -41,10 +41,9 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	DirectionalLightSupplier directionalLightSupplier;
 
-	Floor floor;
-	Vehicle vehicle;
-	Problem problem;
 	CollisionInteraction collisionInteraction;
+	PreCollisionInteraction preCollisionInteraction;
+
 	PerspectiveCameraSupplier cameraSupplier;
 	Collection<ModelSupplier> suppliers;
 	List<RenderAction> renderActions;
@@ -53,6 +52,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	@Override
 	public void create () {
+		GameContext context = new GameContext();
 		modelBatch = new ModelBatch();
 		Gdx.gl.glClearColor(135/255f, 206/255f, 235/255f, 1);
 		environment = new Environment();
@@ -62,31 +62,29 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 		directionalLightSupplier = new DirectionalLightSupplier();
 		environment.add(directionalLightSupplier.getLight());
-		cameraSupplier = new PerspectiveCameraSupplier();
+		cameraSupplier = new PerspectiveCameraSupplier(context);
 
 		stage = new Stage();
-		statsOverlay = new StatsOverlay(stage);
+		statsOverlay = new StatsOverlay(stage, context);
 		CollisionEventReader collisionEventReader = new CollisionEventReader(statsOverlay);
 		collisionEventReader.start();
 
-		floor = new Floor();
-		vehicle = new Vehicle();
-		problem = new Problem();
-
-		collisionInteraction = new CollisionInteraction();
+		collisionInteraction = new CollisionInteraction(context);
+		preCollisionInteraction = new PreCollisionInteraction(context);
 
 		suppliers = new ArrayList<>();
-		suppliers.add(floor);
-		suppliers.add(vehicle);
-		suppliers.add(problem);
+		suppliers.add(context.getFloor());
+		suppliers.add(context.getVehicle());
+		suppliers.add(context.getProblem());
 
 		renderActions = new LinkedList<>();
-		renderActions.add(floor);
-		renderActions.add(vehicle);
-		renderActions.add(problem);
+		renderActions.add(context.getFloor());
+		renderActions.add(context.getVehicle());
+		renderActions.add(context.getProblem());
 		renderActions.add(directionalLightSupplier);
 		renderActions.add(cameraSupplier);
 		renderActions.add(collisionInteraction);
+		//renderActions.add(preCollisionInteraction);
 
 		instances = new ArrayList<>();
 		suppliers.forEach(supplier -> instances.addAll(supplier.getModels()));

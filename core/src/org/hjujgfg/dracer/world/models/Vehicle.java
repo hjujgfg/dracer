@@ -9,23 +9,24 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
+import org.hjujgfg.dracer.world.interfaces.TransformSupplier;
+import org.hjujgfg.dracer.world.interfaces.TypedModel;
 import org.hjujgfg.dracer.world.params.control.Direction;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.world.BigStatic.OBJ_LOADER;
+import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
-public class Vehicle implements ModelSupplier, RenderAction {
+public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, TypedModel {
 
     private final static Model model;
-    private final static ModelInstance instance;
-    private final static Collection<ModelInstance> instances;
-    private final static Random r = new Random();
+    private final ModelInstance instance;
+    private final Collection<ModelInstance> instances;
 
     boolean inBarrelRoll;
     int barrelRolCounter = 0;
@@ -37,6 +38,10 @@ public class Vehicle implements ModelSupplier, RenderAction {
 
     static {
         model = OBJ_LOADER.loadModel(Gdx.files.internal("ship.obj"));
+
+    }
+
+    public Vehicle() {
         instance = new ModelInstance(model);
         instance.transform
                 .setToRotation(0, 0, 1, -90)
@@ -44,10 +49,6 @@ public class Vehicle implements ModelSupplier, RenderAction {
                 .translate(0, 2, 0);
         instances = new ArrayList<>(1);
         instances.add(instance);
-    }
-
-    public static Matrix4 getVehicleTransform() {
-        return instance.transform;
     }
 
     @Override
@@ -65,15 +66,23 @@ public class Vehicle implements ModelSupplier, RenderAction {
         moveVehicleTouch();
     }
 
+    @Override
+    public Matrix4 getTransform() {
+        return instance.transform;
+    }
+
     public void doABarrelRoll() {
         Direction direction = TOUCH_HANDLER.activeDirection;
+        if (!TOUCH_HANDLER.isLeftOrRight()) {
+            direction = Direction.LEFT;
+        }
         barrelRollDirection = direction.multiplier;
         inBarrelRoll = true;
         barrelRolCounter = 18;
     }
 
     private void moveVehicleTouch() {
-        if (inBarrelRoll && TOUCH_HANDLER.isLeftOrRight()) {
+        if (inBarrelRoll) {
             int part = barrelRolCounter / 6;
             float mult;
             if (part == 1) {
@@ -122,7 +131,7 @@ public class Vehicle implements ModelSupplier, RenderAction {
 		/*Gdx.app.log("TRANSLATION", String.format("Instance translation %f %f %f ",
 				translation.x, translation.y, translation.z));*/
         if (fluctCounter-- == 0) {
-            fluct = 2 + r.nextFloat() - 0.5f;
+            fluct = 2 + RANDOM.nextFloat() - 0.5f;
             fluctCounter = 50;
         }
         if (bigger(translation.x, fluct)) {
@@ -130,5 +139,10 @@ public class Vehicle implements ModelSupplier, RenderAction {
         } else if (bigger(fluct, translation.x)) {
             instance.transform.trn(0.01f, 0, 0);
         }
+    }
+
+    @Override
+    public ModelType getType() {
+        return ModelType.VEHICLE;
     }
 }

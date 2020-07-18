@@ -8,7 +8,12 @@ import org.hjujgfg.dracer.events.CollisionEventStore;
 import org.hjujgfg.dracer.input.TouchAdapter;
 import org.hjujgfg.dracer.world.control.TouchHandler;
 
+import java.util.Random;
+
 public class BigStatic {
+
+
+    public final static Random RANDOM = new Random();
 
     public final static ModelBuilder MODEL_BUILDER = new ModelBuilder();
     public final static ObjLoader OBJ_LOADER = new ObjLoader();
