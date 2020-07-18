@@ -1,4 +1,4 @@
-package org.hjujgfg.dracer.world;
+package org.hjujgfg.dracer.world.interfaces;
 
 public interface RenderAction {
 

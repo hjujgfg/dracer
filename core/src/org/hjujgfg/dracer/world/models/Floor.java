@@ -1,6 +1,5 @@
-package org.hjujgfg.dracer.world;
+package org.hjujgfg.dracer.world.models;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -10,7 +9,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.math.Vector3;
 
-import org.hjujgfg.dracer.world.params.ProblemSpeed;
+import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
+import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,6 +73,12 @@ public class Floor implements ModelSupplier, RenderAction {
         all.addAll(floorPlanes);
         all.addAll(houses);
         return all;
+    }
+
+    @Override
+    public void dispose() {
+        floorPlane.dispose();
+        houseModel.dispose();
     }
 
     @Override
