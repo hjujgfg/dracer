@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 import org.hjujgfg.dracer.events.CollisionEventProducer;
 import org.hjujgfg.dracer.events.CollisionEventStore;
+import org.hjujgfg.dracer.events.ProblemPassedEventProducer;
+import org.hjujgfg.dracer.events.ProblemPassedEventStore;
 import org.hjujgfg.dracer.input.TouchAdapter;
 import org.hjujgfg.dracer.world.control.TouchHandler;
 
@@ -29,6 +31,9 @@ public class BigStatic {
 
     public final static CollisionEventStore COLLISION_EVENT_STORE = new CollisionEventStore();
     public final static CollisionEventProducer COLLISION_EVENT_PRODUCER = new CollisionEventProducer();
+
+    public final static ProblemPassedEventStore PROBLEM_PASSED_EVENT_STORE = new ProblemPassedEventStore();
+    public final static ProblemPassedEventProducer PROBLEM_PASSED_EVENT_PRODUCER = new ProblemPassedEventProducer();
 
     //public final static Vehicle VEHICLE = new Vehicle();
 }

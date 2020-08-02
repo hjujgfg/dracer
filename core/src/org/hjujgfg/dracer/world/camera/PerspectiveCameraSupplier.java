@@ -3,32 +3,40 @@ package org.hjujgfg.dracer.world.camera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.ContextualizedInstance;
 import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.interfaces.CameraSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
-import org.hjujgfg.dracer.world.models.ModelType;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
+import static org.hjujgfg.dracer.world.models.ModelType.VEHICLE;
 
 public class PerspectiveCameraSupplier extends ContextualizedInstance implements CameraSupplier, RenderAction {
 
     private final static Vector3 TMP = new Vector3();
+    private final static Vector3 UP = new Vector3(1, 0, 0);
+    private final static Vector3 LEFT = new Vector3(0, 0, 1);
+    private final static Vector3 FORWARD = new Vector3(0, 1, 0);
 
     PerspectiveCamera cam;
 
     final float cameraX = 7f, cameraY = -5f, cameraZ = 0f;
     final float lookX = 0, lookY = 5, lookZ = 0;
+    final Vector3 defaultLookAt = new Vector3(lookX, lookY, lookZ);
+    final Vector3 lookAt = new Vector3(defaultLookAt);
+    private boolean reachedAngle = false;
+
 
     private boolean reachedFow = false;
 
     public PerspectiveCameraSupplier(GameContext context) {
         super(context);
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.up.set(0, 1, 0);
+        cam.up.set(UP);
         cam.position.set(7f, -6f, 0f);
         cam.lookAt(0, 0, 0);
         cam.near = 1f;
@@ -47,7 +55,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
     }
 
     private void moveCamera() {
-        if (TOUCH_HANDLER.isBoth()) {
+        if (context.isInUlt()) {
             handleBoth();
         } else {
             Vector3 pos = cam.position;
@@ -68,7 +76,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
                 cam.position.set(pos.x, pos.y, pos.z - 0.1f);
             }
             cam.fieldOfView = 67;
-            cam.lookAt(lookX, lookY, lookZ);
+            cam.lookAt(defaultLookAt);
             cam.up.set(0, 1, 0);
             reachedFow = false;
         }
@@ -92,9 +100,57 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
                 reachedFow = true;
             }
         } else {
-            if (cam.fieldOfView < 120)
-            cam.fieldOfView += 5;
+            if (cam.fieldOfView < 120) {
+                cam.fieldOfView += 5;
+            }
         }
-        cam.lookAt(context.getTransform(ModelType.VEHICLE).getTranslation(TMP));
+        rotateByHorizontal();
+        //rotateByVertical();
+        //cam.lookAt(context.getTransform(ModelType.VEHICLE).getTranslation(TMP));
+    }
+
+    private void rotateByHorizontal() {
+        float dot = FORWARD.dot(cam.direction.nor());
+        float angle = (float) (Math.acos(dot) * 180 / Math.PI);
+        Gdx.app.log("ANGLE", String.format("dot %f Angle is %f",
+                dot, angle));
+        if (bigger(angle, 0)) { // todo it sometimes goes around
+            cam.rotate(LEFT, -0.5f);
+        }
+    }
+
+    private void rotateByVertical() {
+        Vector3 vPos = context.getTransform(VEHICLE).getTranslation(new Vector3());
+        Vector2 target = new Vector2(vPos.y, vPos.z);
+        Vector2 cur = new Vector2(cam.direction.y, cam.direction.z);
+        float dot = cur.dot(target);
+        float angle = (float) (Math.acos(dot) * 180 / Math.PI);
+        Gdx.app.log("ANGLe", String.format("cur %s, target %s, dot %f Angle is %f v pos: %s Axis is %s",
+                cur.toString(), target.toString(), dot, angle, vPos.toString(), UP.toString()));
+        if (bigger(Math.abs(angle), 1) ) {
+            float multiplier = vPos.z > 0 ? 1 : -1;
+            cam.rotate(UP, multiplier * 0.01f);
+            if (bigger(1, Math.abs(angle))) {
+                reachedAngle = true;
+            }
+        } else {
+            cam.lookAt(vPos);
+        }
+    }
+
+    private void rotateByAngleBetween() {
+        Vector3 vPos = context.getTransform(VEHICLE).getTranslation(new Vector3());
+        Vector3 cDir = cam.direction;
+        Vector3 axis = new Vector3(vPos).crs(cDir);
+        float dot = cDir.dot(vPos);
+        float cos = dot / Math.abs(vPos.len() * cDir.len());
+        double angle = Math.acos(dot);
+        Gdx.app.log("ANGLe", String.format("dot is %f cos is %f Angle is %f Direction is %s, v pos: %s Axis is %s",
+                dot, cos, angle, cDir.toString(), vPos.toString(), axis.toString()));
+        if (bigger(1, (float) Math.abs(angle))) {
+            cam.rotate(axis, (float) angle / 10);
+        } else {
+            cam.lookAt(vPos);
+        }
     }
 }

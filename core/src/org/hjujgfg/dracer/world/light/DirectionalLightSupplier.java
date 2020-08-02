@@ -1,25 +1,39 @@
 package org.hjujgfg.dracer.world.light;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 
+import org.hjujgfg.dracer.world.ContextualizedInstance;
+import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.interfaces.LightSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
-public class DirectionalLightSupplier implements LightSupplier<DirectionalLight>, RenderAction {
+public class DirectionalLightSupplier extends ContextualizedInstance implements LightSupplier<DirectionalLight>, RenderAction {
 
-    DirectionalLight directionalLight;
-    int lightDirection = 1;
+    private DirectionalLight directionalLight;
+    private DirectionalLight staticLight;
 
-    public DirectionalLightSupplier() {
+
+    private DirectionalLight directionalLight2;
+
+
+    public DirectionalLightSupplier(GameContext context) {
+        super(context);
         directionalLight = new DirectionalLight()
-                .set(0.8f, 0.8f, 0.8f,
-                        -6f, 5f, 5f);
+                .set(28.f/255.f, 176.f/255.f, 255.f/255.f,
+                        -6f, 5f, 0);
+        staticLight = new DirectionalLight()
+                .set(28.f/255.f, 176.f/255.f, 255.f/255.f,
+                        -1f, 5f, 0);
+        directionalLight2 = new DirectionalLight()
+                .set(0.4f, 0.4f, 0.4f,
+                        -10f, 2f, -1);
 
     }
 
@@ -29,33 +43,69 @@ public class DirectionalLightSupplier implements LightSupplier<DirectionalLight>
     }
 
     @Override
+    public Collection<DirectionalLight> getLights() {
+        ArrayList<DirectionalLight> lights = new ArrayList<>();
+        lights.add(directionalLight);
+        lights.add(directionalLight2);
+        lights.add(staticLight);
+        return lights;
+    }
+
+    public DirectionalLight getLight2() {
+        return directionalLight2;
+    }
+
+    @Override
     public void render() {
         move();
     }
 
     private void move() {
-        if (TOUCH_HANDLER.isBoth()) {
-            directionalLight.color.set(Color.RED);
-        } else {
-            directionalLight.color.set(Color.WHITE);
-        }
-		/*if (bigger(10, directionalLight.direction.x)) {
-			directionalLight.direction.add(-0.5f, 0f, 0);
-		} else {
-			directionalLight.direction.add(0.5f, 0f, 0);
-		}*/
-        Vector3 direction = directionalLight.direction;
-		/*Gdx.app.log("TRANSLATION", String.format("Light direction %f %f %f ",
-				direction.x, direction.y, direction.z));*/
-
-        if (bigger(-10, direction.x)) {
-            lightDirection = 1;
-        }
-        if (bigger(direction.x, -5)) {
-            lightDirection = -1;
-        }
-        direction.add( lightDirection * PROBLEM_SPEED.get() * 0.5f, 0, 0);
+        moveFirstLight();
+        moveSecondLight();
     }
 
+    private void moveFirstLight() {
+        if (context.isInUlt()) {
+            reddenLight();
+            //directionalLight.color.set(Color.RED);
+        } else {
+            directionalLight.color.set(28.f/255.f, 176.f/255.f, 255.f/255.f, 1f);
+        }
+        Vector3 direction = directionalLight.direction;
+        if (bigger(direction.y, 10)) {
+            directionalLight.setDirection(-10, -50, 0);
+        } else {
+            directionalLight.direction.add(0, PROBLEM_SPEED.get(), 0);
+        }
+        /*if (bigger(direction.y, 15)) {
+            directionalLight.direction.add(0, 0, 1);
+        }*/
+    }
+
+    private void moveSecondLight() {
+        Vector3 direction = directionalLight2.direction;
+        if (bigger(direction.y, 50)) {
+            directionalLight2.setDirection(-0.5f, -25, -1);
+        } else {
+            directionalLight2.direction.add(0, PROBLEM_SPEED.get() / 2, 0);
+        }
+    }
+
+    private void reddenLight() {
+        float r = directionalLight.color.r;
+        if (bigger(1f, r)) {
+            r += 0.1;
+        }
+        float g = directionalLight.color.g;
+        if (bigger(g, 0f)) {
+            g -= 0.1;
+        }
+        float b = directionalLight.color.b;
+        if (bigger(b, 0f)) {
+            b -= 0.1;
+        }
+        directionalLight.color.set(r, g, b, 1.f);
+    }
 
 }

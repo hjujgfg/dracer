@@ -7,19 +7,20 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import org.hjujgfg.dracer.events.CollisionEventReader;
+import org.hjujgfg.dracer.events.ProblemPassedEventReader;
+import org.hjujgfg.dracer.threading.ProblemSpeedThread;
 import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.camera.PerspectiveCameraSupplier;
 import org.hjujgfg.dracer.world.interactions.CollisionInteraction;
-import org.hjujgfg.dracer.world.interactions.PreCollisionInteraction;
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 import org.hjujgfg.dracer.world.light.DirectionalLightSupplier;
-import org.hjujgfg.dracer.world.models.ModelHolder;
 import org.hjujgfg.dracer.world.overlay.StatsOverlay;
 
 import java.util.ArrayList;
@@ -38,11 +39,11 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	List<ModelInstance> instances;
 	ModelBatch modelBatch;
+	ModelCache modelCache;
 
 	DirectionalLightSupplier directionalLightSupplier;
 
 	CollisionInteraction collisionInteraction;
-	PreCollisionInteraction preCollisionInteraction;
 
 	PerspectiveCameraSupplier cameraSupplier;
 	Collection<ModelSupplier> suppliers;
@@ -50,37 +51,58 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	StatsOverlay statsOverlay;
 
+	GameContext context;
+
+
+
+
 	@Override
 	public void create () {
-		GameContext context = new GameContext();
+		context = new GameContext();
 		modelBatch = new ModelBatch();
-		Gdx.gl.glClearColor(135/255f, 206/255f, 235/255f, 1);
+		modelCache = new ModelCache();
+		Gdx.gl.glClearColor(9/255f, 36/255f, 51/255f, 0.3f);
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,
 				0.4f, 0.4f, 0.4f, 1f));
 
 
-		directionalLightSupplier = new DirectionalLightSupplier();
-		environment.add(directionalLightSupplier.getLight());
+		directionalLightSupplier = new DirectionalLightSupplier(context);
+		directionalLightSupplier.getLights().forEach(environment::add);
+		environment.add(context.getProblem().getLight());
+		environment.add(context.getGround().getLight());
 		cameraSupplier = new PerspectiveCameraSupplier(context);
 
 		stage = new Stage();
 		statsOverlay = new StatsOverlay(stage, context);
-		CollisionEventReader collisionEventReader = new CollisionEventReader(statsOverlay);
+		CollisionEventReader collisionEventReader = new CollisionEventReader(statsOverlay, context);
 		collisionEventReader.start();
+		ProblemPassedEventReader problemPassedEventReader = new ProblemPassedEventReader(context);
+		problemPassedEventReader.start();
+		ProblemSpeedThread problemSpeedThread = new ProblemSpeedThread(context);
+		problemSpeedThread.start();
 
 		collisionInteraction = new CollisionInteraction(context);
-		preCollisionInteraction = new PreCollisionInteraction(context);
+		//preCollisionInteraction = new PreCollisionInteraction(context);
+
 
 		suppliers = new ArrayList<>();
-		suppliers.add(context.getFloor());
+		//suppliers.add(context.getFloor());
+		//suppliers.add(context.getTiledFloor());
+
 		suppliers.add(context.getVehicle());
 		suppliers.add(context.getProblem());
+		suppliers.add(context.getGround());
+		//suppliers.add(context.getHouses());
 
 		renderActions = new LinkedList<>();
-		renderActions.add(context.getFloor());
+
+		//renderActions.add(context.getFloor());
+		renderActions.add(context.getTiledFloor());
 		renderActions.add(context.getVehicle());
 		renderActions.add(context.getProblem());
+		//renderActions.add(context.getHouses());
+		renderActions.add(context.getGround());
 		renderActions.add(directionalLightSupplier);
 		renderActions.add(cameraSupplier);
 		renderActions.add(collisionInteraction);
@@ -100,9 +122,12 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
+		modelCache.begin();
+		modelCache.add(context.getTiledFloor().getModels());
+		modelCache.end();
 		modelBatch.begin(cameraSupplier.getCamera());
 		modelBatch.render(instances, environment);
+		modelBatch.render(modelCache, environment);
 		modelBatch.end();
 
 		statsOverlay.render();
@@ -122,6 +147,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 	public void dispose () {
 		stage.dispose();
 		suppliers.forEach(ModelSupplier::dispose);
+		modelCache.dispose();
 	}
 
 	@Override
