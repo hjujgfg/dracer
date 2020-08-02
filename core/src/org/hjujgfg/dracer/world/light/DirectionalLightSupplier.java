@@ -46,7 +46,7 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
     public Collection<DirectionalLight> getLights() {
         ArrayList<DirectionalLight> lights = new ArrayList<>();
         lights.add(directionalLight);
-        lights.add(directionalLight2);
+        //lights.add(directionalLight2);
         lights.add(staticLight);
         return lights;
     }

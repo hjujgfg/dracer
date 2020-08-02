@@ -13,4 +13,13 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new DracerGame(), config);
 	}
+
+	/*@Override
+	protected void onCreate (Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		//GLTFDemo.AUTOLOAD_ENTRY = "BoomBox";
+		//GLTFDemo.AUTOLOAD_VARIANT = "glTF";
+		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+		initialize(new GLTFExample(), config);
+	}*/
 }

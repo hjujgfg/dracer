@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.Vector3;
 
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
@@ -38,7 +40,7 @@ public class Houses implements ModelSupplier, RenderAction {
                         ColorAttribute.createSpecular(Color.WHITE),
                         FloatAttribute.createShininess(128f)
                          ,
-                        TextureAttribute.createDiffuse(new Texture("brick.png"))
+                        PBRTextureAttribute.createDiffuse(new Texture("brick.png"))
                 ),
                 VertexAttributes.Usage.Position);
     }

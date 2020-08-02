@@ -38,7 +38,6 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
 
     static {
         model = OBJ_LOADER.loadModel(Gdx.files.internal("ship.obj"));
-
     }
 
     public Vehicle() {
