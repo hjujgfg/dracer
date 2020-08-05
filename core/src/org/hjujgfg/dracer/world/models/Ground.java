@@ -5,13 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Vector3;
 
@@ -25,6 +20,7 @@ import java.util.List;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.world.models.Materials.createSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Ground implements RenderAction, ModelSupplier, LightSupplier<PointLight> {
@@ -40,38 +36,29 @@ public class Ground implements RenderAction, ModelSupplier, LightSupplier<PointL
         texture.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
         TextureRegion imgTextureRegion = new TextureRegion(texture);
         imgTextureRegion.setRegion(0,0,texture.getWidth() * 3,texture.getHeight() * 3);
-        groundModel = MODEL_BUILDER.createBox(2, 8, 10,
-                new Material(
-                        /*ColorAttribute.createDiffuse(new Color(
-                        173.f/255.f, 245.f/255.f, 255.f/255.f, 1f
-                        )),*/
-                        ColorAttribute.createDiffuse(Color.GRAY),
-                        ColorAttribute.createReflection(Color.WHITE),
-                        ColorAttribute.createSpecular(Color.WHITE),
-                        FloatAttribute.createShininess(1024)
-
-                        //,
-                        //TextureAttribute.createDiffuse(imgTextureRegion)
-                ),
+        groundModel = MODEL_BUILDER.createBox(2, 32, 10,
+                createSilver(),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }
 
     public Ground() {
         ground = new ArrayList<>();
 
-        ModelInstance right = new ModelInstance(groundModel);
-        right.transform.setToTranslation(0, 28, -12);
+
         //ground.add(left);
-        for (int i = 0; i < 10; i ++) {
+        for (int i = 0; i < 5; i ++) {
             ModelInstance left = new ModelInstance(groundModel);
-            left.transform.setToTranslation(0, i * 8.1f, 12);
+            left.transform.setToTranslation(0, i * 32.1f, 12);
             ground.add(left);
+            ModelInstance right = new ModelInstance(groundModel);
+            right.transform.setToTranslation(0, i * 32.1f, -12);
+            ground.add(right);
+
         }
-        ground.add(right);
 
         leftLight = new PointLight();
         leftLight.set(new Color(117 / 255.f, 255/255.f, 239/255.f, 1f),
-                2, 5, 9, 20f);
+                -2, 5, 9, 20f);
     }
 
     @Override

@@ -9,6 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import org.hjujgfg.dracer.world.ContextualizedInstance;
 import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
+import org.hjujgfg.dracer.world.params.ProblemSpeed;
+
+import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class StatsOverlay extends ContextualizedInstance implements RenderAction {
 
@@ -38,7 +41,7 @@ public class StatsOverlay extends ContextualizedInstance implements RenderAction
         builder.append(" FPS: ").append(Gdx.graphics.getFramesPerSecond());
         long time = System.currentTimeMillis() - startTime;
         builder.append("| Game time: ").append(time);
-        builder.append("| Hits: ").append(hits);
+        builder.append("| Hits: ").append(hits).append("/").append(context.passedProblems.getTotalPassedProblems());
         //builder.append(String"| Rating: ").append((float) hits/(float) time);
         //builder.append("| Position: ").append(context.getTransform(VEHICLE).getTranslation(new Vector3()));
         builder.append("| Ult: ");
@@ -50,6 +53,7 @@ public class StatsOverlay extends ContextualizedInstance implements RenderAction
             }
         }
         builder.append('|');
+        builder.append(" Speed: ").append(PROBLEM_SPEED.get()).append("|");
         label.setText(builder);
         stage.draw();
         stage.act();

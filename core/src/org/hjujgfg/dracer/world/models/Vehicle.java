@@ -93,7 +93,7 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
             }
             instance.transform
                     .rotate(0, 0, 1, barrelRollDirection * 20f)
-                    .trn(mult, 0, - barrelRollDirection * 0.3f * Math.max(PROBLEM_SPEED.get(), 1));
+                    .trn(mult, 0, - barrelRollDirection * 0.5f * Math.max(PROBLEM_SPEED.get(), 1));
             barrelRolCounter --;
 			/*Gdx.app.log("BARREL", String.format("Counter is %d",
 					barrelRolCounter));*/
@@ -109,10 +109,9 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
                 Direction direction = TOUCH_HANDLER.activeDirection;
                 instance.transform
                         .rotate(0, 0, 1, direction.multiplier * 0.8f)
-                        .trn(0, 0, (- direction.multiplier) * 0.2f * Math.max(PROBLEM_SPEED.get(), 1));
+                        .trn(0, 0, (- direction.multiplier) * 0.3f * Math.max(PROBLEM_SPEED.get(), 1));
             }
         }
-
         if (!inBarrelRoll && TOUCH_HANDLER.isNone()) {
             stabilize(instance);
         }
@@ -130,7 +129,7 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
 		/*Gdx.app.log("TRANSLATION", String.format("Instance translation %f %f %f ",
 				translation.x, translation.y, translation.z));*/
         if (fluctCounter-- == 0) {
-            fluct = 2 + RANDOM.nextFloat() - 0.5f;
+            fluct = 1 + RANDOM.nextFloat() - 0.5f;
             fluctCounter = 50;
         }
         if (bigger(translation.x, fluct)) {

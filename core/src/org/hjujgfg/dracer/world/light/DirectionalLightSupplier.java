@@ -1,5 +1,6 @@
 package org.hjujgfg.dracer.world.light;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 
@@ -27,12 +28,15 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
         super(context);
         directionalLight = new DirectionalLight()
                 .set(28.f/255.f, 176.f/255.f, 255.f/255.f,
+                //.set(Color.WHITE,
                         -6f, 5f, 0);
         staticLight = new DirectionalLight()
                 .set(28.f/255.f, 176.f/255.f, 255.f/255.f,
+                //.set(Color.WHITE,
                         -1f, 5f, 0);
         directionalLight2 = new DirectionalLight()
-                .set(0.4f, 0.4f, 0.4f,
+                //.set(0.4f, 0.4f, 0.4f,
+                .set(Color.WHITE,
                         -10f, 2f, -1);
 
     }
@@ -46,13 +50,9 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
     public Collection<DirectionalLight> getLights() {
         ArrayList<DirectionalLight> lights = new ArrayList<>();
         lights.add(directionalLight);
-        //lights.add(directionalLight2);
+        lights.add(directionalLight2);
         lights.add(staticLight);
         return lights;
-    }
-
-    public DirectionalLight getLight2() {
-        return directionalLight2;
     }
 
     @Override
@@ -71,9 +71,10 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
             //directionalLight.color.set(Color.RED);
         } else {
             directionalLight.color.set(28.f/255.f, 176.f/255.f, 255.f/255.f, 1f);
+            //directionalLight.color.set(Color.WHITE);
         }
         Vector3 direction = directionalLight.direction;
-        if (bigger(direction.y, 10)) {
+        if (bigger(direction.y, 60)) {
             directionalLight.setDirection(-10, -50, 0);
         } else {
             directionalLight.direction.add(0, PROBLEM_SPEED.get(), 0);

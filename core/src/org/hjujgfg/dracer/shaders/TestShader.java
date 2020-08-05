@@ -2,9 +2,11 @@ package org.hjujgfg.dracer.shaders;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
@@ -27,7 +29,7 @@ public class TestShader implements Shader {
     int u_color;
 
     int lightPosition;
-    int v_lightIntensity;
+    int lightColor;
 
     float r, g, b;
 
@@ -46,6 +48,7 @@ public class TestShader implements Shader {
         u_worldTrans = program.getUniformLocation("u_worldTrans");
         u_color = program.getUniformLocation("u_color");
         lightPosition = program.getUniformLocation("lightPosition");
+        lightColor = program.getUniformLocation("lightColor");
         r = MathUtils.random();
         g = MathUtils.random();
         b = MathUtils.random();
@@ -78,8 +81,10 @@ public class TestShader implements Shader {
         g = g + MathUtils.random(0.01f) * MathUtils.randomSign();
         b = b + MathUtils.random(0.01f) * MathUtils.randomSign();
         program.setUniformf(u_color, r, g, b);
+        Color colorU = ((ColorAttribute)renderable.material.get(ColorAttribute.Diffuse)).color;
         gameContext.getVehicle().getTransform().getTranslation(tmp);
         program.setUniformf(lightPosition, tmp.x, tmp.y, tmp.z);
+        program.setUniformf(lightColor, b, g, r);
         //program.setUniformi("u_texture", 0);
         renderable.meshPart.render(program);
     }

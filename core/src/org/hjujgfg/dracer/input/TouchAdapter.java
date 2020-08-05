@@ -44,8 +44,8 @@ public class TouchAdapter extends InputAdapter {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Gdx.app.log("INFO", String.format("Touch down happened %d:%d with pointer %d, btn: %d",
-                screenX, screenY, pointer, button));
+        //Gdx.app.log("INFO", String.format("Touch down happened %d:%d with pointer %d, btn: %d",
+        //        screenX, screenY, pointer, button));
         if (Gdx.graphics.getWidth() / 2 < screenX) {
             rightPressedActions.forEach(c -> c.accept(pointer));
         } else {
@@ -56,8 +56,8 @@ public class TouchAdapter extends InputAdapter {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        Gdx.app.log("INFO", String.format("Touch up happened %d:%d with pointer %d, btn: %d",
-                screenX, screenY, pointer, button));
+        //Gdx.app.log("INFO", String.format("Touch up happened %d:%d with pointer %d, btn: %d",
+        //        screenX, screenY, pointer, button));
         if (Gdx.graphics.getWidth() / 2 < screenX) {
             rightUpAction.forEach(c -> c.accept(pointer));
         } else {

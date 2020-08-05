@@ -24,7 +24,6 @@ public class ModelHolder {
         ground = new Ground();
         transformSupplierMap = new HashMap<>();
         transformSupplierMap.put(ModelType.VEHICLE, vehicle);
-        transformSupplierMap.put(ModelType.PROBLEM, problem);
     }
 
     public Floor getFloor() {

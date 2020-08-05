@@ -1,20 +1,11 @@
 package org.hjujgfg.dracer.world.models;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
-import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
-import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
-import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
@@ -27,6 +18,8 @@ import java.util.List;
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
 import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.world.models.Materials.createPolishedSilver;
+import static org.hjujgfg.dracer.world.models.Materials.createSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class TiledFlor implements RenderAction, ModelSupplier {
@@ -42,19 +35,10 @@ public class TiledFlor implements RenderAction, ModelSupplier {
 
     static {
         floorPlane = MODEL_BUILDER.createBox(0.2f, 2f, 2f,
-                new Material(
-                        ColorAttribute.createDiffuse(Color.FOREST),
-                        ColorAttribute.createDiffuse(Color.BLACK),
-                        ColorAttribute.createSpecular(Color.WHITE),
-                        TextureAttribute.createNormal(new Texture("metall.jpg")),
-                        FloatAttribute.createShininess(256)
-                ),
+                createPolishedSilver(),
                 VertexAttributes.Usage.Normal |
                         VertexAttributes.Usage.Position |
-                        VertexAttributes.Usage.TextureCoordinates |
-                        256 |
-                        PBRVertexAttributes.Usage.PositionTarget |
-                        PBRVertexAttributes.Usage.NormalTarget
+                        VertexAttributes.Usage.TextureCoordinates
         );
     }
 
@@ -98,7 +82,7 @@ public class TiledFlor implements RenderAction, ModelSupplier {
             int index = (int) (position.z / 2.1f) + 2;
             float last = lastPlanes[index].transform.getTranslation(new Vector3()).y;
             //fl.transform.setTranslation(11 + RANDOM.nextInt(50), last + 2.1f, position.z);
-            fl.transform.setTranslation(MathUtils.randomSign() * 40 + RANDOM.nextInt(5), last + 2.1f, position.z);
+            fl.transform.setTranslation(MathUtils.randomSign() * 40 + RANDOM.nextInt(10), last + 2.1f, position.z);
             lastPlanes[index] = fl;
         } else {
             fl.transform.translate(0, - PROBLEM_SPEED.get(), 0);
@@ -114,4 +98,5 @@ public class TiledFlor implements RenderAction, ModelSupplier {
                     0);
         }
     }
+
 }
