@@ -13,7 +13,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 
 public class TestShader implements Shader {
     private final Vector3 tmp = new Vector3();

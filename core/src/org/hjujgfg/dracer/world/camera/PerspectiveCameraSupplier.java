@@ -7,12 +7,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.ContextualizedInstance;
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.interfaces.CameraSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
+import static org.hjujgfg.dracer.gameplay.states.GameMode.PROBLEM_EVASION;
+import static org.hjujgfg.dracer.gameplay.states.GameMode.TOP_VIEW_PROBLEM_EVASION;
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
 import static org.hjujgfg.dracer.world.models.ModelType.VEHICLE;
 
 public class PerspectiveCameraSupplier extends ContextualizedInstance implements CameraSupplier, RenderAction {
@@ -22,6 +23,8 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
     private final static Vector3 LEFT = new Vector3(0, 0, 1);
     private final static Vector3 FORWARD = new Vector3(0, 1, 0);
 
+    private final static float SWITCH_SPEED = 0.2f;
+
     PerspectiveCamera cam;
 
     final float cameraX = 7f, cameraY = -5f, cameraZ = 0f;
@@ -29,6 +32,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
     final Vector3 defaultLookAt = new Vector3(lookX, lookY, lookZ);
     final Vector3 lookAt = new Vector3(defaultLookAt);
     private boolean reachedAngle = false;
+    private CameraMode cameraMode = CameraMode.DEFAULT;
 
 
     private boolean reachedFow = false;
@@ -54,29 +58,71 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
         return cam;
     }
 
+    public void switchMode() {
+        if (cameraMode == CameraMode.DEFAULT) {
+            cameraMode = CameraMode.FROM_TOP;
+        } else {
+            cameraMode = CameraMode.DEFAULT;
+        }
+    }
+
+    public void switchToDefault() {
+        cameraMode = CameraMode.DEFAULT;
+    }
+
+    public void switchToFromTop() {
+        cameraMode = CameraMode.FROM_TOP;
+    }
+
     private void moveCamera() {
         if (context.isInUlt()) {
             handleBoth();
-        } else {
+        } else if (context.getGameMode() == PROBLEM_EVASION) {
             Vector3 pos = cam.position;
             if (bigger(cameraY, pos.y)) {
-                cam.position.set(pos.x, pos.y + 0.1f, pos.z);
+                cam.position.set(pos.x, pos.y + SWITCH_SPEED, pos.z);
             } else if (bigger(pos.y, cameraY)) {
-                cam.position.set(pos.x, pos.y - 0.1f, pos.z);
+                cam.position.set(pos.x, pos.y - SWITCH_SPEED, pos.z);
             }
             if (bigger(cameraX, pos.x)) {
-                cam.position.set(pos.x + 0.1f, pos.y, pos.z);
+                cam.position.set(pos.x + SWITCH_SPEED, pos.y, pos.z);
             } else if (bigger(pos.x, cameraX)) {
-                cam.position.set(pos.x - 0.1f, pos.y, pos.z);
+                cam.position.set(pos.x - SWITCH_SPEED, pos.y, pos.z);
             }
 
             if (bigger(cameraZ, pos.z)) {
-                cam.position.set(pos.x, pos.y, pos.z + 0.1f);
+                cam.position.set(pos.x, pos.y, pos.z + SWITCH_SPEED);
             } else if (bigger(pos.z, cameraZ)) {
-                cam.position.set(pos.x, pos.y, pos.z - 0.1f);
+                cam.position.set(pos.x, pos.y, pos.z - SWITCH_SPEED);
             }
-            cam.fieldOfView = 67;
+            if (cam.fieldOfView > 67) {
+                cam.fieldOfView --;
+            }
             cam.lookAt(defaultLookAt);
+            cam.up.set(0, 1, 0);
+            reachedFow = false;
+        } else if (context.getGameMode() == TOP_VIEW_PROBLEM_EVASION) {
+            Vector3 pos = cam.position;
+            if (bigger(10, pos.y)) {
+                cam.position.set(pos.x, pos.y + SWITCH_SPEED, pos.z);
+            } else if (bigger(pos.y, 10)) {
+                cam.position.set(pos.x, pos.y - SWITCH_SPEED, pos.z);
+            }
+            if (bigger(30, pos.x)) {
+                cam.position.set(pos.x + SWITCH_SPEED, pos.y, pos.z);
+            } else if (bigger(pos.x, 30)) {
+                cam.position.set(pos.x - SWITCH_SPEED, pos.y, pos.z);
+            }
+
+            if (bigger(cameraZ, pos.z)) {
+                cam.position.set(pos.x, pos.y, pos.z + SWITCH_SPEED);
+            } else if (bigger(pos.z, cameraZ)) {
+                cam.position.set(pos.x, pos.y, pos.z - SWITCH_SPEED);
+            }
+            if (cam.fieldOfView < 100) {
+                cam.fieldOfView ++;
+            }
+            cam.lookAt(0, 10, 0);
             cam.up.set(0, 1, 0);
             reachedFow = false;
         }
@@ -112,8 +158,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
     private void rotateByHorizontal() {
         float dot = FORWARD.dot(cam.direction.nor());
         float angle = (float) (Math.acos(dot) * 180 / Math.PI);
-        Gdx.app.log("ANGLE", String.format("dot %f Angle is %f",
-                dot, angle));
+        Gdx.app.log("ANGLE", String.format("dot %f Angle is %f", dot, angle));
         if (bigger(angle, 0)) { // todo it sometimes goes around
             cam.rotate(LEFT, -0.5f);
         }
@@ -152,5 +197,10 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
         } else {
             cam.lookAt(vPos);
         }
+    }
+
+    public enum CameraMode {
+        DEFAULT,
+        FROM_TOP
     }
 }

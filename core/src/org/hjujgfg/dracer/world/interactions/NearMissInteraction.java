@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.ContextualizedInstance;
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
@@ -29,7 +29,7 @@ public class NearMissInteraction extends ContextualizedInstance implements Rende
             return;
         }
         long current = System.currentTimeMillis();
-        if (current - prevHappened < 5_000) {
+        if (current - prevHappened < 3_000) {
             inNearMiss = false;
             return;
         }
@@ -51,6 +51,7 @@ public class NearMissInteraction extends ContextualizedInstance implements Rende
     private boolean checkNearMiss(ModelInstance problem, Vector3 instancePosition) {
         Vector3 translation = problem.transform.getTranslation(TMP);
         float dst = translation.dst(instancePosition);
-        return dst < 5 && bigger(translation.y, 0);
+        float zDiff = Math.abs(translation.z - instancePosition.z);
+        return dst < 10 && bigger(translation.y, 0) && zDiff < 1.5;
     }
 }

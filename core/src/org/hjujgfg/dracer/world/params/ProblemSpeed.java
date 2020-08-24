@@ -4,6 +4,8 @@ import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 
 public class ProblemSpeed {
 
+    public static float MINIMAL_MINIMAL_SPEED = 0.5f;
+
     private float problemSpeed = 0.5f;
     private float minimalProblemSpeed = problemSpeed;
 
@@ -25,6 +27,10 @@ public class ProblemSpeed {
 
     public void change(float delta) {
         problemSpeed += delta;
+    }
+
+    public boolean minimalThresholdNotPassed() {
+        return bigger(minimalProblemSpeed, MINIMAL_MINIMAL_SPEED);
     }
 
     public void changeMinimal(float delta) {

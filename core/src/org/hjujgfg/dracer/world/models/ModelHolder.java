@@ -13,6 +13,7 @@ public class ModelHolder {
     Houses houses;
     TiledFlor tiledFlor;
     Ground ground;
+    GameEvent gameEvent;
     public Map<ModelType, TransformSupplier> transformSupplierMap;
 
     public ModelHolder() {
@@ -22,6 +23,7 @@ public class ModelHolder {
         houses = new Houses();
         tiledFlor = new TiledFlor();
         ground = new Ground();
+        gameEvent = new GameEvent();
         transformSupplierMap = new HashMap<>();
         transformSupplierMap.put(ModelType.VEHICLE, vehicle);
     }
@@ -50,4 +52,7 @@ public class ModelHolder {
         return tiledFlor;
     }
 
+    public GameEvent getGameEvent() {
+        return gameEvent;
+    }
 }

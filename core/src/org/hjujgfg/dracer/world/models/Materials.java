@@ -15,6 +15,15 @@ public class Materials {
         );
     }
 
+    public static Material createExtraSilver() {
+        return new Material(
+                ColorAttribute.createAmbient(0.89225f, 0.89225f, 0.89225f, 1),
+                ColorAttribute.createDiffuse(0.90754f, 0.90754f, 0.90754f, 1),
+                ColorAttribute.createSpecular(0.808273f, 0.808273f, 0.808273f, 1),
+                FloatAttribute.createShininess(51.2f)
+        );
+    }
+
     public static Material createPolishedSilver() {
         return new Material(
                 ColorAttribute.createAmbient(0.23125f, 0.23125f, 0.23125f, 1),

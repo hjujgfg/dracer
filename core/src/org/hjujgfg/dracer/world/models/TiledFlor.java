@@ -3,10 +3,7 @@ package org.hjujgfg.dracer.world.models;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-
-import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
@@ -16,16 +13,17 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
-import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.world.models.Materials.createPolishedSilver;
-import static org.hjujgfg.dracer.world.models.Materials.createSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class TiledFlor implements RenderAction, ModelSupplier {
 
-    private final static int ROWS = 25;
+    private final static int ROWS = 30;
     private final static int COLS = 5;
+    private final static int SIDE = 2;
+    private final static float BETWEEN = SIDE + 0.1f;
 
     private final static Model floorPlane;
 
@@ -34,7 +32,7 @@ public class TiledFlor implements RenderAction, ModelSupplier {
     private ModelInstance[] lastPlanes = new ModelInstance[COLS];
 
     static {
-        floorPlane = MODEL_BUILDER.createBox(0.2f, 2f, 2f,
+        floorPlane = MODEL_BUILDER.createBox(0.1f, SIDE, SIDE,
                 createPolishedSilver(),
                 VertexAttributes.Usage.Normal |
                         VertexAttributes.Usage.Position |
@@ -47,9 +45,9 @@ public class TiledFlor implements RenderAction, ModelSupplier {
         for (int i = 0; i < ROWS; i ++) {
             for (int j = -2; j < COLS - 2; j ++) {
                 ModelInstance newOne = new ModelInstance(floorPlane);
-                newOne.transform.setToTranslation(0, i * 2.1f, j * 2.1f);
+                newOne.transform.setToTranslation(0, i * BETWEEN, j * BETWEEN);
                 planes.add(newOne);
-                if (i == ROWS - 2) {
+                if (i == ROWS - 1) {
                     lastPlanes[j + 2] = newOne;
                 }
             }
@@ -78,11 +76,11 @@ public class TiledFlor implements RenderAction, ModelSupplier {
             Gdx.app.log("FLOOR", String.format("Floor now at %f %f %f ",
                     position.x, position.y, position.z));
         }*/
-        if (bigger(-4.2f, position.y, 0.00001f)) {
-            int index = (int) (position.z / 2.1f) + 2;
+        if (bigger(-20f, position.y, 0.00001f)) {
+            int index = (int) (position.z / BETWEEN) + 2;
             float last = lastPlanes[index].transform.getTranslation(new Vector3()).y;
             //fl.transform.setTranslation(11 + RANDOM.nextInt(50), last + 2.1f, position.z);
-            fl.transform.setTranslation(MathUtils.randomSign() * 40 + RANDOM.nextInt(10), last + 2.1f, position.z);
+            fl.transform.setToTranslation( - RANDOM.nextInt(20), last + BETWEEN, position.z);
             lastPlanes[index] = fl;
         } else {
             fl.transform.translate(0, - PROBLEM_SPEED.get(), 0);

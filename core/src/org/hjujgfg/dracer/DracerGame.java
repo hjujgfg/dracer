@@ -11,20 +11,20 @@ import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import org.hjujgfg.dracer.events.CollisionEventReader;
+import org.hjujgfg.dracer.events.GameEventCollisionEventReader;
 import org.hjujgfg.dracer.events.ProblemPassedEventReader;
 import org.hjujgfg.dracer.shaders.TestShader;
-import org.hjujgfg.dracer.shaders.TestShaderProvider;
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.camera.PerspectiveCameraSupplier;
 import org.hjujgfg.dracer.world.interactions.CollisionInteraction;
+import org.hjujgfg.dracer.world.interactions.EventInteraction;
 import org.hjujgfg.dracer.world.interactions.NearMissInteraction;
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
@@ -37,7 +37,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.hjujgfg.dracer.world.BigStatic.TOUCH_ADAPTER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.TOUCH_ADAPTER;
+import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 
 public class DracerGame extends InputAdapter implements ApplicationListener {
@@ -58,6 +59,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 	CollisionInteraction collisionInteraction;
 	NearMissInteraction nearMissInteraction;
+	EventInteraction gameEventInteraction;
 
 	PerspectiveCameraSupplier cameraSupplier;
 	Collection<ModelSupplier> suppliers;
@@ -115,6 +117,9 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		collisionEventReader.start();
 		ProblemPassedEventReader problemPassedEventReader = new ProblemPassedEventReader(context);
 		problemPassedEventReader.start();
+		GameEventCollisionEventReader gameEventCollisionEventReader = new GameEventCollisionEventReader(context);
+		gameEventCollisionEventReader.start();
+
 		/*ProblemSpeedThread problemSpeedThread = new ProblemSpeedThread(context);
 		problemSpeedThread.start();*/
 
@@ -122,6 +127,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 
 		collisionInteraction = new CollisionInteraction(context);
 		nearMissInteraction = new NearMissInteraction(context);
+		gameEventInteraction =  new EventInteraction(context);
 		//preCollisionInteraction = new PreCollisionInteraction(context);
 
 
@@ -141,10 +147,12 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		renderActions.add(context.getProblem());
 		//renderActions.add(context.getHouses());
 		renderActions.add(context.getGround());
+		renderActions.add(context.getGameEvent());
 		renderActions.add(directionalLightSupplier);
 		renderActions.add(cameraSupplier);
 		renderActions.add(collisionInteraction);
 		renderActions.add(nearMissInteraction);
+		renderActions.add(gameEventInteraction);
 		//renderActions.add(preCollisionInteraction);
 
 		instances = new ArrayList<>();
@@ -179,6 +187,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		modelCache.add(context.getTiledFloor().getModels());
 		modelCache.add(context.getProblem().getModels());
 		modelCache.add(context.getGround().getModels());
+		modelCache.add(context.getGameEvent().getModels());
 		modelCache.end();
 
 		/*floorModelBatch.begin(cameraSupplier.getCamera());

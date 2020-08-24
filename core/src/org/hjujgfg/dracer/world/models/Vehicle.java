@@ -17,13 +17,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.OBJ_LOADER;
-import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
-import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.OBJ_LOADER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.gameplay.BigStatic.TOUCH_HANDLER;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, TypedModel {
 
+    private final static Vector3 TMP = new Vector3();
     private final static Model model;
     private final ModelInstance instance;
     private final Collection<ModelInstance> instances;
@@ -114,6 +115,11 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
         }
         if (!inBarrelRoll && TOUCH_HANDLER.isNone()) {
             stabilize(instance);
+        }
+        Vector3 pos = instance.transform.getTranslation(TMP);
+        if (PROBLEM_SPEED.minimalThresholdNotPassed() && (bigger(pos.z, 4.2f) || bigger(-4.2f, pos.z))) {
+            PROBLEM_SPEED.change(-0.01f);
+            PROBLEM_SPEED.changeMinimal(-0.01f);
         }
     }
 

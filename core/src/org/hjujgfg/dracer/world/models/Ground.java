@@ -19,7 +19,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.world.models.Materials.createExtraSilver;
 import static org.hjujgfg.dracer.world.models.Materials.createSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
@@ -36,22 +37,20 @@ public class Ground implements RenderAction, ModelSupplier, LightSupplier<PointL
         texture.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
         TextureRegion imgTextureRegion = new TextureRegion(texture);
         imgTextureRegion.setRegion(0,0,texture.getWidth() * 3,texture.getHeight() * 3);
-        groundModel = MODEL_BUILDER.createBox(2, 32, 10,
-                createSilver(),
+        groundModel = MODEL_BUILDER.createBox(0.2f, 32, 0.1f,
+                createExtraSilver(),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }
 
     public Ground() {
         ground = new ArrayList<>();
-
-
         //ground.add(left);
         for (int i = 0; i < 5; i ++) {
             ModelInstance left = new ModelInstance(groundModel);
-            left.transform.setToTranslation(0, i * 32.1f, 12);
+            left.transform.setToTranslation(0, i * 32.1f, 5.3f);
             ground.add(left);
             ModelInstance right = new ModelInstance(groundModel);
-            right.transform.setToTranslation(0, i * 32.1f, -12);
+            right.transform.setToTranslation(0, i * 32.1f, -5.3f);
             ground.add(right);
 
         }

@@ -1,6 +1,6 @@
 package org.hjujgfg.dracer.world.params;
 
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;

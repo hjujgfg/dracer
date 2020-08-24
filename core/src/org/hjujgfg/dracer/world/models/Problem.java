@@ -1,9 +1,11 @@
 package org.hjujgfg.dracer.world.models;
 
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.interfaces.LightSupplier;
@@ -15,9 +17,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
-import static org.hjujgfg.dracer.world.BigStatic.PROBLEM_PASSED_EVENT_PRODUCER;
-import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.PROBLEM_PASSED_EVENT_PRODUCER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.world.models.Materials.createEmerald;
 import static org.hjujgfg.dracer.world.models.Materials.createMattDiffuse;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
@@ -77,6 +80,9 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
             PROBLEM_SPEED.change(0.01f);
             randomizeProblemPosition(problemInstance);
             PROBLEM_PASSED_EVENT_PRODUCER.produceEvent();
+            problemInstance.materials.clear();
+            Material m = MathUtils.randomSign() > 0 ? createMattDiffuse() : createEmerald();
+            problemInstance.materials.add(m);
         }
         if (bigger(position.x, 0.75f, 0.00001f)) {
             problemInstance.transform.translate(- Math.min(Math.abs(PROBLEM_SPEED.get()), position.x - 0.75f),

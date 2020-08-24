@@ -3,12 +3,11 @@ package org.hjujgfg.dracer.world.interactions;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.ContextualizedInstance;
-import org.hjujgfg.dracer.world.GameContext;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 
-import static org.hjujgfg.dracer.world.BigStatic.COLLISION_EVENT_PRODUCER;
-import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.gameplay.BigStatic.COLLISION_EVENT_PRODUCER;
 import static org.hjujgfg.dracer.world.models.ModelType.VEHICLE;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 

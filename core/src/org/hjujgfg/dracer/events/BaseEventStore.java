@@ -1,8 +1,11 @@
 package org.hjujgfg.dracer.events;
 
+import org.hjujgfg.dracer.events.event.BaseEvent;
+import org.hjujgfg.dracer.events.event.EventType;
+
 import java.util.LinkedList;
 
-public abstract class BaseEventStore<T> implements EventStore<T> {
+public class BaseEventStore<T extends BaseEvent> implements EventStore<T> {
 
     private LinkedList<T> events = new LinkedList<>();
 
@@ -16,9 +19,17 @@ public abstract class BaseEventStore<T> implements EventStore<T> {
         return events.pop();
     }
 
+    public synchronized void readOfType(EventType eventType) {
+        BaseEvent event = events.stream().filter(e -> e.getType() == eventType).findFirst().get();
+        events.remove(event);
+    }
+
     @Override
     public boolean hasEvent() {
         return !events.isEmpty();
     }
 
+    public synchronized boolean hasEventOfType(EventType type) {
+        return events.stream().anyMatch(e -> e.getType() == type);
+    }
 }

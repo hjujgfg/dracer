@@ -1,6 +1,5 @@
 package org.hjujgfg.dracer.world.models;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -9,7 +8,6 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.Vector3;
 
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -22,8 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
-import static org.hjujgfg.dracer.world.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Houses implements ModelSupplier, RenderAction {

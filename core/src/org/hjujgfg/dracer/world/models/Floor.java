@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
-import static org.hjujgfg.dracer.world.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Floor implements ModelSupplier, RenderAction, TypedModel {

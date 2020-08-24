@@ -1,8 +1,9 @@
-package org.hjujgfg.dracer.world;
+package org.hjujgfg.dracer.gameplay;
 
 import com.badlogic.gdx.math.Matrix4;
 
 import org.hjujgfg.dracer.world.models.Floor;
+import org.hjujgfg.dracer.world.models.GameEvent;
 import org.hjujgfg.dracer.world.models.Ground;
 import org.hjujgfg.dracer.world.models.Houses;
 import org.hjujgfg.dracer.world.models.ModelHolder;
@@ -12,9 +13,9 @@ import org.hjujgfg.dracer.world.models.TiledFlor;
 import org.hjujgfg.dracer.world.models.Vehicle;
 import org.hjujgfg.dracer.world.params.PassedProblems;
 
-import static org.hjujgfg.dracer.world.BigStatic.TOUCH_HANDLER;
+import static org.hjujgfg.dracer.gameplay.BigStatic.TOUCH_HANDLER;
 
-public class GameContext {
+public class GameContext extends GameModeController {
 
     public ModelHolder modelHolder;
     public PassedProblems passedProblems;
@@ -50,6 +51,10 @@ public class GameContext {
 
     public Ground getGround() {
         return modelHolder.getGround();
+    }
+
+    public GameEvent getGameEvent() {
+        return modelHolder.getGameEvent();
     }
 
     public PassedProblems getPassedProblems() {

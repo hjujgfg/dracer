@@ -2,7 +2,7 @@ package org.hjujgfg.dracer.threading;
 
 import com.badlogic.gdx.Gdx;
 
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 

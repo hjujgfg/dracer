@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 
 import org.hjujgfg.dracer.world.ContextualizedInstance;
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.interfaces.LightSupplier;
 import org.hjujgfg.dracer.world.interfaces.RenderAction;
 

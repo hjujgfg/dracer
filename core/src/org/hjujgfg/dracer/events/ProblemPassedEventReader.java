@@ -1,12 +1,9 @@
 package org.hjujgfg.dracer.events;
 
-import org.hjujgfg.dracer.events.event.ProblemPassedEvent;
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.events.event.EventType;
+import org.hjujgfg.dracer.gameplay.GameContext;
 
-import static org.hjujgfg.dracer.world.BigStatic.PROBLEM_PASSED_EVENT_STORE;
-
-public class ProblemPassedEventReader extends Thread {
-    private boolean run = true;
+public class ProblemPassedEventReader extends BaseEventReader {
     private GameContext context;
 
     public ProblemPassedEventReader(GameContext context) {
@@ -14,16 +11,13 @@ public class ProblemPassedEventReader extends Thread {
     }
 
     @Override
-    public void run() {
-        while (run) {
-            while (PROBLEM_PASSED_EVENT_STORE.hasEvent()) {
-                ProblemPassedEvent event = PROBLEM_PASSED_EVENT_STORE.read();
-                context.getPassedProblems().passProblem();
-            }
-        }
+    protected EventType getType() {
+        return EventType.PROBLEM_PASSED;
     }
 
-    public void close() {
-        run = false;
+    @Override
+    protected void handleEvent() {
+        context.getPassedProblems().passProblem();
     }
+
 }

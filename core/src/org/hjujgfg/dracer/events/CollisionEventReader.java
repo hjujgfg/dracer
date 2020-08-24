@@ -1,34 +1,32 @@
 package org.hjujgfg.dracer.events;
 
-import org.hjujgfg.dracer.events.event.CollisionEvent;
-import org.hjujgfg.dracer.world.GameContext;
+import org.hjujgfg.dracer.events.event.EventType;
+import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.overlay.StatsOverlay;
 
-import static org.hjujgfg.dracer.world.BigStatic.COLLISION_EVENT_STORE;
+public class CollisionEventReader extends BaseEventReader {
 
-public class CollisionEventReader extends Thread {
-
-    private boolean run = true;
     StatsOverlay overlay;
     GameContext context;
 
-    public CollisionEventReader(StatsOverlay overlay, GameContext context) {
+    public CollisionEventReader(StatsOverlay overlay, GameContext context, Runnable... consumers) {
+        super(consumers);
         this.overlay = overlay;
         this.context = context;
     }
 
     @Override
-    public void run() {
-        while (run) {
-            while (COLLISION_EVENT_STORE.hasEvent()) {
-                CollisionEvent event = COLLISION_EVENT_STORE.read();
-                overlay.addHit();
-                context.passedProblems.collide();
-            }
-        }
+    protected EventType getType() {
+        return EventType.PROBLEM_COLLISION;
     }
 
-    public void close() {
-        run = false;
+    @Override
+    protected void handleEvent() {
+        addHit();
+    }
+
+    private void addHit()  {
+        overlay.addHit();
+        context.passedProblems.collide();
     }
 }
