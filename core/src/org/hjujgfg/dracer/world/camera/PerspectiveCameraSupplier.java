@@ -24,6 +24,8 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
     private final static Vector3 FORWARD = new Vector3(0, 1, 0);
 
     private final static float SWITCH_SPEED = 0.2f;
+    private final static int DEFAUlT_FOW = 100;
+    private final static int DEFAULT_TOP_FOW = 120;
 
     PerspectiveCamera cam;
 
@@ -39,7 +41,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
 
     public PerspectiveCameraSupplier(GameContext context) {
         super(context);
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam = new PerspectiveCamera(DEFAUlT_FOW, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.up.set(UP);
         cam.position.set(7f, -6f, 0f);
         cam.lookAt(0, 0, 0);
@@ -95,7 +97,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
             } else if (bigger(pos.z, cameraZ)) {
                 cam.position.set(pos.x, pos.y, pos.z - SWITCH_SPEED);
             }
-            if (cam.fieldOfView > 67) {
+            if (cam.fieldOfView > DEFAUlT_FOW) {
                 cam.fieldOfView --;
             }
             cam.lookAt(defaultLookAt);
@@ -103,9 +105,9 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
             reachedFow = false;
         } else if (context.getGameMode() == TOP_VIEW_PROBLEM_EVASION) {
             Vector3 pos = cam.position;
-            if (bigger(10, pos.y)) {
+            if (bigger(30, pos.y)) {
                 cam.position.set(pos.x, pos.y + SWITCH_SPEED, pos.z);
-            } else if (bigger(pos.y, 10)) {
+            } else if (bigger(pos.y, 30)) {
                 cam.position.set(pos.x, pos.y - SWITCH_SPEED, pos.z);
             }
             if (bigger(30, pos.x)) {
@@ -119,10 +121,10 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
             } else if (bigger(pos.z, cameraZ)) {
                 cam.position.set(pos.x, pos.y, pos.z - SWITCH_SPEED);
             }
-            if (cam.fieldOfView < 100) {
+            if (cam.fieldOfView < DEFAULT_TOP_FOW) {
                 cam.fieldOfView ++;
             }
-            cam.lookAt(0, 10, 0);
+            cam.lookAt(0, 30, 0);
             cam.up.set(0, 1, 0);
             reachedFow = false;
         }

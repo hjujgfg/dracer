@@ -23,6 +23,8 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
 
     private DirectionalLight directionalLight2;
 
+    private int movementDirection = 1;
+
 
     public DirectionalLightSupplier(GameContext context) {
         super(context);
@@ -75,10 +77,12 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
         }
         Vector3 direction = directionalLight.direction;
         if (bigger(direction.y, 60)) {
-            directionalLight.setDirection(-10, -50, 0);
+            movementDirection = -movementDirection;
+            //directionalLight.setDirection(-10, -50, 0);
         } else {
-            directionalLight.direction.add(0, PROBLEM_SPEED.get(), 0);
+            //directionalLight.direction.add(0, PROBLEM_SPEED.get(), 0);
         }
+        directionalLight.direction.add(0, PROBLEM_SPEED.get() * movementDirection, 0);
         /*if (bigger(direction.y, 15)) {
             directionalLight.direction.add(0, 0, 1);
         }*/

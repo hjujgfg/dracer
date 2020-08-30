@@ -9,6 +9,7 @@ import org.hjujgfg.dracer.events.GameEventCollisionEventProducer;
 import org.hjujgfg.dracer.events.ProblemPassedEventProducer;
 import org.hjujgfg.dracer.events.event.BaseEvent;
 import org.hjujgfg.dracer.input.TouchAdapter;
+import org.hjujgfg.dracer.world.control.SwipeHandler;
 import org.hjujgfg.dracer.world.control.TouchHandler;
 
 import java.util.Random;
@@ -28,6 +29,8 @@ public class BigStatic {
             TOUCH_HANDLER::handleRightPressed,
             TOUCH_HANDLER::handleRightUp
     );
+
+    public final static SwipeHandler SWIPE_HANDLER = new SwipeHandler();
 
     public final static BaseEventStore<BaseEvent> BASE_EVENT_STORE = new BaseEventStore<>();
 

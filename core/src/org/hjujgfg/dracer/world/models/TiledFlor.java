@@ -15,7 +15,9 @@ import java.util.List;
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
 import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.world.models.Materials.createExtraSilver;
 import static org.hjujgfg.dracer.world.models.Materials.createPolishedSilver;
+import static org.hjujgfg.dracer.world.models.Materials.createSlightlyColoredSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class TiledFlor implements RenderAction, ModelSupplier {
@@ -33,7 +35,7 @@ public class TiledFlor implements RenderAction, ModelSupplier {
 
     static {
         floorPlane = MODEL_BUILDER.createBox(0.1f, SIDE, SIDE,
-                createPolishedSilver(),
+                createSlightlyColoredSilver(),
                 VertexAttributes.Usage.Normal |
                         VertexAttributes.Usage.Position |
                         VertexAttributes.Usage.TextureCoordinates

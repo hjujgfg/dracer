@@ -15,6 +15,10 @@ import org.hjujgfg.dracer.world.interfaces.TypedModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
@@ -22,19 +26,24 @@ import static org.hjujgfg.dracer.gameplay.BigStatic.PROBLEM_PASSED_EVENT_PRODUCE
 import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.world.models.Materials.createEmerald;
 import static org.hjujgfg.dracer.world.models.Materials.createMattDiffuse;
+import static org.hjujgfg.dracer.world.models.Materials.createPolishedSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSupplier<PointLight> {
 
     private final static Model problem;
+    private final static int LINES_COUNT = 5;
     private final Collection<ModelInstance> instances;
+    private final Set<ModelInstance> renderableInstances;
+    private final Set<Integer> takenLines;
+    private final Map<ModelInstance, Integer> takenLineByProblem;
     private int problemsCount = 3;
 
     private PointLight pointLight;
 
     static {
         problem = MODEL_BUILDER.createBox(1.5f, 1.5f, 1.5f,
-                createMattDiffuse(),
+                createPolishedSilver(),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }
 
@@ -42,6 +51,9 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
     public Problem() {
         pointLight = new PointLight();
         instances = new ArrayList<>(problemsCount);
+        takenLines = new HashSet<>();
+        takenLineByProblem = new HashMap<>();
+        renderableInstances = new HashSet<>();
         for (int i = 0; i < problemsCount; i ++) {
             ModelInstance problemInstance = new ModelInstance(problem);
             problemInstance.transform.setToTranslation(
@@ -50,13 +62,14 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
                     RANDOM.nextFloat() * 5f - 2.5f);
             randomizeProblemPosition(problemInstance);
             instances.add(problemInstance);
+            renderableInstances.add(problemInstance);
         }
 
     }
 
     @Override
     public Collection<ModelInstance> getModels() {
-        return instances;
+        return renderableInstances;
     }
 
     @Override
@@ -91,14 +104,33 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
         }
     }
 
+    public void stopRendering(ModelInstance problemInstance) {
+        renderableInstances.remove(problemInstance);
+    }
+
     public void randomizeProblemPosition(ModelInstance problemInstance) {
+        renderableInstances.add(problemInstance);
         int val = RANDOM.nextInt(2);
         float xPos = 1.5f;
         if (val % 2 == 0) {
             xPos = 25f;
         }
-        val = RANDOM.nextInt(5);
+        if (takenLineByProblem.containsKey(problemInstance)) {
+            takenLines.remove(takenLineByProblem.get(problemInstance));
+        }
+        val = RANDOM.nextInt(LINES_COUNT - takenLines.size());
         int zPos = 0;
+        int indexAmongFree = 0;
+        for (int i = 0; i < LINES_COUNT; i ++) {
+            if (takenLines.contains(i)) {
+                continue;
+            }
+            if (indexAmongFree == val) {
+                val = i;
+                break;
+            }
+            indexAmongFree ++;
+        }
         switch (val) {
             case 0: zPos = -4; break;
             case 1: zPos = -2; break;
@@ -106,7 +138,10 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
             case 3: zPos = 2; break;
             case 4: zPos = 4; break;
         }
-        float yPos = 50 * Math.max(PROBLEM_SPEED.get(), 1) + RANDOM.nextInt(20);
+        takenLines.add(val);
+        takenLineByProblem.put(problemInstance, val);
+        //float yPos = 50 * Math.max(PROBLEM_SPEED.get(), 1);//+ RANDOM.nextInt(20);
+        float yPos = 100;
         problemInstance.transform.setTranslation(
                 xPos,
                 yPos,

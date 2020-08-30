@@ -9,6 +9,7 @@ import org.hjujgfg.dracer.world.models.Houses;
 import org.hjujgfg.dracer.world.models.ModelHolder;
 import org.hjujgfg.dracer.world.models.ModelType;
 import org.hjujgfg.dracer.world.models.Problem;
+import org.hjujgfg.dracer.world.models.Terrain;
 import org.hjujgfg.dracer.world.models.TiledFlor;
 import org.hjujgfg.dracer.world.models.Vehicle;
 import org.hjujgfg.dracer.world.params.PassedProblems;
@@ -55,6 +56,10 @@ public class GameContext extends GameModeController {
 
     public GameEvent getGameEvent() {
         return modelHolder.getGameEvent();
+    }
+
+    public Terrain getTerrain() {
+        return modelHolder.getTerrain();
     }
 
     public PassedProblems getPassedProblems() {

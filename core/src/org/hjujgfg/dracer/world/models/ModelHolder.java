@@ -14,6 +14,8 @@ public class ModelHolder {
     TiledFlor tiledFlor;
     Ground ground;
     GameEvent gameEvent;
+    Terrain terrain;
+    MeshedCube meshedCube;
     public Map<ModelType, TransformSupplier> transformSupplierMap;
 
     public ModelHolder() {
@@ -24,6 +26,8 @@ public class ModelHolder {
         tiledFlor = new TiledFlor();
         ground = new Ground();
         gameEvent = new GameEvent();
+        terrain = new Terrain();
+        meshedCube = new MeshedCube();
         transformSupplierMap = new HashMap<>();
         transformSupplierMap.put(ModelType.VEHICLE, vehicle);
     }
@@ -54,5 +58,13 @@ public class ModelHolder {
 
     public GameEvent getGameEvent() {
         return gameEvent;
+    }
+
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
+    public MeshedCube getMeshedCube() {
+        return meshedCube;
     }
 }

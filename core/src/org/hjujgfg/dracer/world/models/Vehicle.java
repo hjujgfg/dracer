@@ -16,15 +16,21 @@ import org.hjujgfg.dracer.world.params.control.Direction;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.hjujgfg.dracer.gameplay.BigStatic.SWIPE_HANDLER;
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.gameplay.BigStatic.OBJ_LOADER;
 import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
 import static org.hjujgfg.dracer.gameplay.BigStatic.TOUCH_HANDLER;
+import static org.hjujgfg.dracer.util.FloatUtils.someWhatSimilar;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
+import static org.hjujgfg.dracer.world.params.control.Direction.LEFT;
+import static org.hjujgfg.dracer.world.params.control.Direction.RIGHT;
 
 public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, TypedModel {
 
     private final static Vector3 TMP = new Vector3();
+    private final static float DEFAULT_ANGULAR_SPEED = 0.4f;
+    private final static float MIN_DEFAULT_ANGULAR_SPEED = 0.2f;
     private final static Model model;
     private final ModelInstance instance;
     private final Collection<ModelInstance> instances;
@@ -35,6 +41,8 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
 
     int fluctCounter = 10;
     float fluct = 0;
+
+    float angularSpeed = DEFAULT_ANGULAR_SPEED;
 
 
     static {
@@ -74,11 +82,31 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
     public void doABarrelRoll() {
         Direction direction = TOUCH_HANDLER.activeDirection;
         if (!TOUCH_HANDLER.isLeftOrRight()) {
-            direction = Direction.LEFT;
+            direction = LEFT;
         }
         barrelRollDirection = direction.multiplier;
         inBarrelRoll = true;
         barrelRolCounter = 18;
+    }
+
+    private void moveVehicleSwipe() {
+        Vector3 pos = instance.transform.getTranslation(TMP);
+        Gdx.app.log("SWIPE MOVING", String.format("Line coord: %.2f, veh coord: %.2f", SWIPE_HANDLER.currentLineCoord(), pos.z));
+        /*if (someWhatSimilar(pos.z, SWIPE_HANDLER.currentLineCoord(), 0.1f)) {
+            instance.transform
+                    .setToRotation(0, 0, 1, -90)
+                    .rotate(0, 1, 0, -90)
+                    .setToTranslation(pos.x, pos.y, SWIPE_HANDLER.currentLineCoord());
+        }*/
+        if (bigger(pos.z, SWIPE_HANDLER.currentLineCoord())) {
+            instance.transform
+                    .rotate(0, 0, 1, RIGHT.multiplier * 0.8f)
+                    .setTranslation(pos.x, pos.y, SWIPE_HANDLER.currentLineCoord());
+        } else if (bigger(SWIPE_HANDLER.currentLineCoord(), pos.z)) {
+            instance.transform
+                    .rotate(0, 0, 1, LEFT.multiplier * 0.8f)
+                    .setTranslation(pos.x, pos.y, SWIPE_HANDLER.currentLineCoord());
+        }
     }
 
     private void moveVehicleTouch() {
@@ -110,7 +138,10 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
                 Direction direction = TOUCH_HANDLER.activeDirection;
                 instance.transform
                         .rotate(0, 0, 1, direction.multiplier * 0.8f)
-                        .trn(0, 0, (- direction.multiplier) * 0.3f * Math.max(PROBLEM_SPEED.get(), 1));
+                        .trn(0, 0, (- direction.multiplier) * angularSpeed);
+                if (bigger(angularSpeed, MIN_DEFAULT_ANGULAR_SPEED)) {
+                    angularSpeed -= 0.05f;
+                }
             }
         }
         if (!inBarrelRoll && TOUCH_HANDLER.isNone()) {
@@ -121,9 +152,16 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
             PROBLEM_SPEED.change(-0.01f);
             PROBLEM_SPEED.changeMinimal(-0.01f);
         }
+        if (bigger(pos.z, 4.2f)) {
+            instance.transform.trn(0, 0, 4.2f - pos.z);
+        }
+        if (bigger(-4.2f, pos.z)) {
+            instance.transform.trn(0, 0, -4.2f - pos.z);
+        }
     }
 
     private void stabilize(ModelInstance instance) {
+        angularSpeed = DEFAULT_ANGULAR_SPEED;
         Quaternion rotation = instance.transform.getRotation(new Quaternion());
         float angleAround = rotation.getAngleAround(0, 0, 1);
         if (bigger(angleAround, -90)) {

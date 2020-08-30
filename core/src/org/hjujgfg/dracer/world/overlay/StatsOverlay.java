@@ -29,6 +29,7 @@ public class StatsOverlay extends ContextualizedInstance implements RenderAction
         font = new BitmapFont();
         font.getData().setScale(4f, 4f);
         label = new Label(" ", new Label.LabelStyle(font, Color.GREEN));
+        label.setPosition(0, 60);
         onDemandLabel = new Label(" ", new Label.LabelStyle(font, Color.GREEN));
         int height = Gdx.graphics.getHeight();
         onDemandLabel.setPosition(60, height - 200);
@@ -54,7 +55,7 @@ public class StatsOverlay extends ContextualizedInstance implements RenderAction
         builder.append("| Hits: ").append(hits).append("/").append(context.passedProblems.getTotalPassedProblems());
         //builder.append(String"| Rating: ").append((float) hits/(float) time);
         //builder.append("| Position: ").append(context.getTransform(VEHICLE).getTranslation(new Vector3()));
-        builder.append("| Ult: ");
+        builder.append("\n| Ult: ");
         for (int i = 0; i < 20; i ++) {
             if (i < context.getPassedProblems().getPassedProblemsWithoutCollision()) {
                 builder.append('|');
