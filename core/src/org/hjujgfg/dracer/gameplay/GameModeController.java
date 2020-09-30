@@ -2,6 +2,8 @@ package org.hjujgfg.dracer.gameplay;
 
 import org.hjujgfg.dracer.gameplay.states.GameMode;
 
+import static org.hjujgfg.dracer.gameplay.states.GameMode.BLURRED;
+import static org.hjujgfg.dracer.gameplay.states.GameMode.LONG_BLURRED;
 import static org.hjujgfg.dracer.gameplay.states.GameMode.PROBLEM_EVASION;
 import static org.hjujgfg.dracer.gameplay.states.GameMode.TOP_VIEW_PROBLEM_EVASION;
 
@@ -21,6 +23,16 @@ public class GameModeController {
 
     public void enableTopView() {
         gameMode = TOP_VIEW_PROBLEM_EVASION;
+        lastSwitch = System.currentTimeMillis();
+    }
+
+    public void enableBlurred() {
+        gameMode = BLURRED;
+        lastSwitch = System.currentTimeMillis();
+    }
+
+    public void enableLongBlurred() {
+        gameMode = LONG_BLURRED;
         lastSwitch = System.currentTimeMillis();
     }
 
@@ -44,9 +56,9 @@ public class GameModeController {
         private boolean run = true;
         public void run() {
             while (run) {
-                if (gameMode == TOP_VIEW_PROBLEM_EVASION) {
+                if (gameMode != PROBLEM_EVASION) {
                     diff = System.currentTimeMillis() - lastSwitch;
-                    if (diff > TOP_VIEW_PROBLEM_EVASION.modeLength) {
+                    if (diff > gameMode.modeLength) {
                         gameMode = PROBLEM_EVASION;
                     }
                 }

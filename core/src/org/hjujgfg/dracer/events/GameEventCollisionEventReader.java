@@ -23,6 +23,6 @@ public class GameEventCollisionEventReader extends BaseEventReader {
     protected void handleEvent() {
         //Gdx.app.log("EVENT_INTERACTION", String.format("Handling event"));
         context.getGameEvent().randomizeEventPosition();
-        context.enableTopView();
+        //context.enableTopView();
     }
 }

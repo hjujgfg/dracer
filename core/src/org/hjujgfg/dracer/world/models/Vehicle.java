@@ -16,6 +16,8 @@ import org.hjujgfg.dracer.world.params.control.Direction;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.signum;
 import static org.hjujgfg.dracer.gameplay.BigStatic.SWIPE_HANDLER;
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.gameplay.BigStatic.OBJ_LOADER;
@@ -44,6 +46,8 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
 
     float angularSpeed = DEFAULT_ANGULAR_SPEED;
 
+    private float jumpHeight = -1;
+    private float steeringVelocity;
 
     static {
         model = OBJ_LOADER.loadModel(Gdx.files.internal("ship.obj"));
@@ -71,7 +75,8 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
 
     @Override
     public void render() {
-        moveVehicleTouch();
+        //moveVehicleTouch();
+        stabilize(instance);
     }
 
     @Override
@@ -87,6 +92,38 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
         barrelRollDirection = direction.multiplier;
         inBarrelRoll = true;
         barrelRolCounter = 18;
+    }
+
+    public void steerContinuousStop() {
+        steeringVelocity = 0;
+    }
+
+
+
+    public void steerContinuousAlt() {
+
+    }
+
+    public void steerContinuous(float velocity) {
+        steeringVelocity = velocity;
+        instance.transform.rotate(0, 0, 1, - (steeringVelocity * steeringVelocity) * 2 * signum(steeringVelocity));
+        instance.transform.trn(0, 0, (-steeringVelocity) * 0.4f);
+
+        Vector3 pos = instance.transform.getTranslation(TMP);
+        if (PROBLEM_SPEED.minimalThresholdNotPassed() && (bigger(pos.z, 4.2f) || bigger(-4.2f, pos.z))) {
+            PROBLEM_SPEED.change(-0.01f);
+            PROBLEM_SPEED.changeMinimal(-0.01f);
+        }
+        if (bigger(pos.z, 4.2f)) {
+            instance.transform.trn(0, 0, 4.2f - pos.z);
+        }
+        if (bigger(-4.2f, pos.z)) {
+            instance.transform.trn(0, 0, -4.2f - pos.z);
+        }
+    }
+
+    public void jump() {
+        jumpHeight = 5f;
     }
 
     private void moveVehicleSwipe() {
@@ -118,12 +155,12 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
             } else if (part == 2) {
                 mult = 0.2f;
             } else {
-                mult = - 0.3f;
+                mult = -0.3f;
             }
             instance.transform
                     .rotate(0, 0, 1, barrelRollDirection * 20f)
-                    .trn(mult, 0, - barrelRollDirection * 0.5f * Math.max(PROBLEM_SPEED.get(), 1));
-            barrelRolCounter --;
+                    .trn(mult, 0, -barrelRollDirection * 0.5f * Math.max(PROBLEM_SPEED.get(), 1));
+            barrelRolCounter--;
 			/*Gdx.app.log("BARREL", String.format("Counter is %d",
 					barrelRolCounter));*/
             if (barrelRolCounter == 1) {
@@ -138,7 +175,7 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
                 Direction direction = TOUCH_HANDLER.activeDirection;
                 instance.transform
                         .rotate(0, 0, 1, direction.multiplier * 0.8f)
-                        .trn(0, 0, (- direction.multiplier) * angularSpeed);
+                        .trn(0, 0, (-direction.multiplier) * angularSpeed);
                 if (bigger(angularSpeed, MIN_DEFAULT_ANGULAR_SPEED)) {
                     angularSpeed -= 0.05f;
                 }
@@ -163,11 +200,23 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
     private void stabilize(ModelInstance instance) {
         angularSpeed = DEFAULT_ANGULAR_SPEED;
         Quaternion rotation = instance.transform.getRotation(new Quaternion());
+        float targetAngle = 270f;
         float angleAround = rotation.getAngleAround(0, 0, 1);
-        if (bigger(angleAround, -90)) {
-            instance.transform.rotate(0, 0, 1, (-90 - angleAround));
-        } else if (bigger(-90, angleAround)) {
-            instance.transform.rotate(0, 0, 1, (-90 + angleAround));
+        Gdx.app.log("angle around", "angl: " + angleAround);
+        float diff = Math.abs(targetAngle - angleAround);
+
+        if (bigger(0.05f, abs(steeringVelocity)) && diff > 0) {
+            float rotate = 2;
+            if (diff <= 2) {
+                rotate = 0.5f;
+            }
+            if (bigger(angleAround, targetAngle)) {
+                //Gdx.app.log("angle around", "around: " + (-90 - angleAround));
+                instance.transform.rotate(0, 0, 1, - rotate);
+            } else if (bigger(targetAngle, angleAround)) {
+                //Gdx.app.log("angle around", " - around: " + (-90 + angleAround));
+                instance.transform.rotate(0, 0, 1, rotate);
+            }
         }
         Vector3 translation = instance.transform.getTranslation(new Vector3());
 		/*Gdx.app.log("TRANSLATION", String.format("Instance translation %f %f %f ",
@@ -176,10 +225,23 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
             fluct = 1 + RANDOM.nextFloat() - 0.5f;
             fluctCounter = 50;
         }
-        if (bigger(translation.x, fluct)) {
-            instance.transform.trn( -0.01f, 0, 0);
-        } else if (bigger(fluct, translation.x)) {
-            instance.transform.trn(0.01f, 0, 0);
+
+        if (bigger(translation.x, fluct, 0.3f)) {
+            instance.transform.trn(-0.05f, 0, 0);
+        } else if (bigger(fluct, translation.x, 0.3f)) {
+            instance.transform.trn(0.05f, 0, 0);
+        } else {
+            if (bigger(translation.x, fluct, 0.01f)) {
+                instance.transform.trn(-0.01f, 0, 0);
+            } else if (bigger(fluct, translation.x, 0.01f)) {
+                instance.transform.trn(0.01f, 0, 0);
+            }
+        }
+        if (bigger(jumpHeight, translation.x)) {
+            instance.transform.trn(0.5f, 0, 0);
+            if (bigger(translation.x + 0.5f, jumpHeight)) {
+                jumpHeight = -1;
+            }
         }
     }
 

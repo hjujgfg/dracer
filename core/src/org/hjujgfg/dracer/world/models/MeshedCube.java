@@ -1,5 +1,7 @@
 package org.hjujgfg.dracer.world.models;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -18,10 +20,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
+import static org.hjujgfg.dracer.world.models.Materials.createChip;
+import static org.hjujgfg.dracer.world.models.Materials.createClouds;
+import static org.hjujgfg.dracer.world.models.Materials.createExtraSilver;
+import static org.hjujgfg.dracer.world.models.Materials.createNeonGrid;
+import static org.hjujgfg.dracer.world.models.Materials.createNeonSilver;
 import static org.hjujgfg.dracer.world.models.Materials.createSilver;
+import static org.hjujgfg.dracer.world.models.Materials.createSun;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class MeshedCube implements RenderAction, ModelSupplier {
@@ -36,23 +45,25 @@ public class MeshedCube implements RenderAction, ModelSupplier {
     float[] mBatchedCubesVertices;
     Array<Cube> mBatchedCubes;
     Model model;
-    Map<Integer, Float> lastTiles = new HashMap<>();
 
     List<ModelInstance> instances = new ArrayList<>();
+    Map<Cube, Integer> cubeToLine;
+    Map<Integer, Cube> lineToLastCube;
 
     public MeshedCube() {
         int width = 1;
         int height = 50;
         int length = 5;
         int numCubes = width*height*length;
+        cubeToLine = new HashMap<>();
+        lineToLastCube = new HashMap<>();
 
         MODEL_BUILDER.begin();
         MeshPartBuilder mpb = MODEL_BUILDER.part("cubes", GL20.GL_TRIANGLES,
-                (VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.ColorPacked),
-                createSilver());
+                (VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates),
+                createNeonSilver());
         for (int i = 0; i < numCubes; i++) {
             BoxShapeBuilder.build(mpb, 0.1f, SIDE, SIDE);
-            //mpb.box(0.1f, SIDE, SIDE);
         }
         model = MODEL_BUILDER.end();
         mBatchedCubesModelInstance = new ModelInstance(model);
@@ -72,10 +83,12 @@ public class MeshedCube implements RenderAction, ModelSupplier {
                             0, y * BETWEEN, z * BETWEEN,
                             0.1f, SIDE, SIDE, cubeNum++,
                             vertexAttributes);
+                    c.setColor(Color.WHITE);
                     mBatchedCubes.add(c);
                     c.update(mBatchedCubesVertices);
+                    cubeToLine.put(c, z);
                     if (y == height - 1) {
-                        lastTiles.put( (int ) (z * BETWEEN), (float) y);
+                        lineToLastCube.put(z, c);
                     }
                 }
             }
@@ -105,14 +118,19 @@ public class MeshedCube implements RenderAction, ModelSupplier {
     }
 
     private void move() {
-        for (Cube c : mBatchedCubes) {
-            if (bigger(-10, c.position.y)) {
-                Float last = lastTiles.getOrDefault((int) c.position.z, 100f);
-                lastTiles.put((int) c.position.z, last);
-                c.translateTo(c.position.x, last + BETWEEN, c.position.z);
-            } else {
-                c.translate(0, - PROBLEM_SPEED.get(), 0);
+        float speed = PROBLEM_SPEED.get();
+        for (int i = mBatchedCubes.size - 1; i >= 0; i --) {
+            Cube c = mBatchedCubes.get(i);
+            if (bigger(-20, c.position.y)) {
+                int targetLine = cubeToLine.get(c);
+                Cube lastCube = lineToLastCube.get(targetLine);
+                //float last = Math.max(lastCube.position.y, 75f);
+                float last = lastCube.position.y;
+                lineToLastCube.put(targetLine, c);
+                //Gdx.app.log("Tile:", "Last y: " + last);
+                c.translateTo(c.position.x, Math.round((last + BETWEEN) * 1000f) / 1000f, c.position.z);
             }
+            c.translate(0, - speed, 0);
             c.update(mBatchedCubesVertices);
         }
         mBatchedCubesMesh.updateVertices(0, mBatchedCubesVertices);

@@ -19,6 +19,8 @@ import java.util.List;
 
 import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
+import static org.hjujgfg.dracer.world.models.Materials.createExtraSilver;
+import static org.hjujgfg.dracer.world.models.Materials.createSilver;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Floor implements ModelSupplier, RenderAction, TypedModel {
@@ -29,11 +31,12 @@ public class Floor implements ModelSupplier, RenderAction, TypedModel {
     private final static Vector3 buffer = new Vector3();
 
     static {
-        floorPlane = MODEL_BUILDER.createBox(0.2f, 10f, 7,
-                new Material(
+        floorPlane = MODEL_BUILDER.createBox(0.2f, 10f, 10.5f,
+                /*new Material(
                         ColorAttribute.createDiffuse(Color.WHITE),
                         ColorAttribute.createSpecular(Color.WHITE),
-                        FloatAttribute.createShininess(128f)),
+                        FloatAttribute.createShininess(128f)),*/
+                createExtraSilver(),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
     }
 
@@ -71,12 +74,17 @@ public class Floor implements ModelSupplier, RenderAction, TypedModel {
         }*/
         if (bigger(-10, position.y, 0.00001f)) {
             float last = findLastFloorPlane(index);
-            fl.transform.setTranslation(50, last + 12, position.z);
+            fl.transform.setTranslation(-50, last + 10.1f, position.z);
         } else {
             fl.transform.translate(0, - PROBLEM_SPEED.get(), 0);
         }
         if (bigger(position.x, 0, 0.00001f)) {
             fl.transform.translate(- Math.min(Math.abs(PROBLEM_SPEED.get()), position.x),
+                    0,
+                    0);
+        }
+        if (bigger(0, position.x, 0.00001f)) {
+            fl.transform.translate(-Math.min(Math.abs(PROBLEM_SPEED.get()), position.x),
                     0,
                     0);
         }

@@ -29,7 +29,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
 
     PerspectiveCamera cam;
 
-    final float cameraX = 7f, cameraY = -5f, cameraZ = 0f;
+    final float cameraX = 7f, cameraY = -7f, cameraZ = 0f;
     final float lookX = 0, lookY = 5, lookZ = 0;
     final Vector3 defaultLookAt = new Vector3(lookX, lookY, lookZ);
     final Vector3 lookAt = new Vector3(defaultLookAt);
@@ -48,6 +48,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
         cam.near = 1f;
         cam.far = 300f;
         cam.update();
+        context.cameraSupplier = this;
     }
 
     @Override
@@ -74,6 +75,12 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
 
     public void switchToFromTop() {
         cameraMode = CameraMode.FROM_TOP;
+    }
+
+    public void moveSideways(float velocity) {
+        Vector3 pos = cam.position;
+        cam.position.set(pos.x, pos.y, pos.z + velocity);
+        cam.up.set(UP);
     }
 
     private void moveCamera() {
@@ -161,7 +168,7 @@ public class PerspectiveCameraSupplier extends ContextualizedInstance implements
         float dot = FORWARD.dot(cam.direction.nor());
         float angle = (float) (Math.acos(dot) * 180 / Math.PI);
         Gdx.app.log("ANGLE", String.format("dot %f Angle is %f", dot, angle));
-        if (bigger(angle, 0)) { // todo it sometimes goes around
+        if (bigger(angle, 5)) { // todo it sometimes goes around
             cam.rotate(LEFT, -0.5f);
         }
     }

@@ -26,7 +26,11 @@ public class ProblemSpeed {
     }
 
     public void change(float delta) {
-        problemSpeed += delta;
+        float res = problemSpeed + delta;
+        if (bigger(res, minimalProblemSpeed)) {
+            return;
+        }
+        problemSpeed = res;
     }
 
     public boolean minimalThresholdNotPassed() {
@@ -34,7 +38,11 @@ public class ProblemSpeed {
     }
 
     public void changeMinimal(float delta) {
-        minimalProblemSpeed += delta;
+        float res = minimalProblemSpeed + delta;
+        if (bigger(res, 2.f)) {
+            return;
+        }
+        minimalProblemSpeed = res;
     }
 
     public boolean isSlow() {

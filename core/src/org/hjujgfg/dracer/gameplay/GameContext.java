@@ -2,6 +2,9 @@ package org.hjujgfg.dracer.gameplay;
 
 import com.badlogic.gdx.math.Matrix4;
 
+import org.hjujgfg.dracer.gameplay.states.GameMode;
+import org.hjujgfg.dracer.world.camera.PerspectiveCameraSupplier;
+import org.hjujgfg.dracer.world.interfaces.CameraSupplier;
 import org.hjujgfg.dracer.world.models.Floor;
 import org.hjujgfg.dracer.world.models.GameEvent;
 import org.hjujgfg.dracer.world.models.Ground;
@@ -20,6 +23,7 @@ public class GameContext extends GameModeController {
 
     public ModelHolder modelHolder;
     public PassedProblems passedProblems;
+    public PerspectiveCameraSupplier cameraSupplier;
 
     public GameContext() {
         this.modelHolder = new ModelHolder();
@@ -67,6 +71,6 @@ public class GameContext extends GameModeController {
     }
 
     public boolean isInUlt() {
-        return passedProblems.ultReady() && TOUCH_HANDLER.isBoth();
+        return getGameMode() == GameMode.LONG_BLURRED;
     }
 }

@@ -24,6 +24,7 @@ import static org.hjujgfg.dracer.util.FloatUtils.bigger;
 import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
 import static org.hjujgfg.dracer.gameplay.BigStatic.PROBLEM_PASSED_EVENT_PRODUCER;
 import static org.hjujgfg.dracer.gameplay.BigStatic.RANDOM;
+import static org.hjujgfg.dracer.world.models.Materials.createChip;
 import static org.hjujgfg.dracer.world.models.Materials.createEmerald;
 import static org.hjujgfg.dracer.world.models.Materials.createMattDiffuse;
 import static org.hjujgfg.dracer.world.models.Materials.createPolishedSilver;
@@ -37,13 +38,13 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
     private final Set<ModelInstance> renderableInstances;
     private final Set<Integer> takenLines;
     private final Map<ModelInstance, Integer> takenLineByProblem;
-    private int problemsCount = 3;
+    private int problemsCount = 10;
 
     private PointLight pointLight;
 
     static {
         problem = MODEL_BUILDER.createBox(1.5f, 1.5f, 1.5f,
-                createPolishedSilver(),
+                createChip(),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }
 
@@ -86,7 +87,13 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
         Vector3 position;
         position = problemInstance.transform.getTranslation(new Vector3());
         if (bigger(position.y, -5)) {
-            problemInstance.transform.translate(0, - PROBLEM_SPEED.get(), 0);
+            problemInstance.transform.trn(0, - PROBLEM_SPEED.get(), 0);
+            problemInstance.transform.rotate(
+                    MathUtils.random(1f),
+                    MathUtils.random(1f),
+                    MathUtils.random(1f),
+                    MathUtils.random(5f) * PROBLEM_SPEED.get()
+            );
             //pointLight.position.y -= PROBLEM_SPEED.get();
         } else {
             PROBLEM_SPEED.changeMinimal(0.01f);
@@ -118,7 +125,7 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
         if (takenLineByProblem.containsKey(problemInstance)) {
             takenLines.remove(takenLineByProblem.get(problemInstance));
         }
-        val = RANDOM.nextInt(LINES_COUNT - takenLines.size());
+        /*val = RANDOM.nextInt(LINES_COUNT - takenLines.size());
         int zPos = 0;
         int indexAmongFree = 0;
         for (int i = 0; i < LINES_COUNT; i ++) {
@@ -137,7 +144,8 @@ public class Problem implements ModelSupplier, RenderAction, TypedModel, LightSu
             case 2: zPos = 0; break;
             case 3: zPos = 2; break;
             case 4: zPos = 4; break;
-        }
+        }*/
+        float zPos = MathUtils.random(-2f, 2f);
         takenLines.add(val);
         takenLineByProblem.put(problemInstance, val);
         //float yPos = 50 * Math.max(PROBLEM_SPEED.get(), 1);//+ RANDOM.nextInt(20);

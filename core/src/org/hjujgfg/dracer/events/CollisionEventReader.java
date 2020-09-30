@@ -1,5 +1,7 @@
 package org.hjujgfg.dracer.events;
 
+import com.badlogic.gdx.Gdx;
+
 import org.hjujgfg.dracer.events.event.EventType;
 import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.world.overlay.StatsOverlay;
@@ -28,5 +30,8 @@ public class CollisionEventReader extends BaseEventReader {
     private void addHit()  {
         overlay.addHit();
         context.passedProblems.collide();
+        context.getTerrain().spike();
+        context.enableBlurred();
+        //Gdx.input.vibrate(50);
     }
 }

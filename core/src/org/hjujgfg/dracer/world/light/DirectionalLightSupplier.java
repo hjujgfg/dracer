@@ -33,9 +33,10 @@ public class DirectionalLightSupplier extends ContextualizedInstance implements 
                 //.set(Color.WHITE,
                         -6f, 5f, 0);
         staticLight = new DirectionalLight()
-                .set(28.f/255.f, 176.f/255.f, 255.f/255.f,
+                //.set(28.f/255.f, 176.f/255.f, 255.f/255.f,
+                .set(Color.WHITE,
                 //.set(Color.WHITE,
-                        -1f, 5f, 0);
+                        -5f, -20f, 0);
         directionalLight2 = new DirectionalLight()
                 //.set(0.4f, 0.4f, 0.4f,
                 .set(Color.WHITE,

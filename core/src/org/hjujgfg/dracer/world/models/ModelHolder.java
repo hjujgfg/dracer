@@ -16,6 +16,8 @@ public class ModelHolder {
     GameEvent gameEvent;
     Terrain terrain;
     MeshedCube meshedCube;
+    Sun sun;
+    Whale whale;
     public Map<ModelType, TransformSupplier> transformSupplierMap;
 
     public ModelHolder() {
@@ -28,6 +30,8 @@ public class ModelHolder {
         gameEvent = new GameEvent();
         terrain = new Terrain();
         meshedCube = new MeshedCube();
+        sun = new Sun();
+        whale = new Whale();
         transformSupplierMap = new HashMap<>();
         transformSupplierMap.put(ModelType.VEHICLE, vehicle);
     }
@@ -66,5 +70,13 @@ public class ModelHolder {
 
     public MeshedCube getMeshedCube() {
         return meshedCube;
+    }
+
+    public Sun getSun() {
+        return sun;
+    }
+
+    public Whale getWhale() {
+        return whale;
     }
 }

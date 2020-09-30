@@ -47,29 +47,29 @@ public class Cube {
     static final Vector3[] NORMALS = {NORMAL0, NORMAL1, NORMAL2, NORMAL3, NORMAL4, NORMAL5};
 
     public Cube(float x, float y, float z, float width, float height, float depth, int index,
-                VertexAttributes vertexAttributes){
-        position.set(x,y,z);
-        this.halfWidth = width/2;
-        this.halfHeight = height/2;
-        this.halfDepth = depth/2;
+                VertexAttributes vertexAttributes) {
+        position.set(x, y, z);
+        this.halfWidth = width / 2;
+        this.halfHeight = height / 2;
+        this.halfDepth = depth / 2;
         this.index = index;
 
 
-        vertexFloatSize = vertexAttributes.vertexSize/4; //4 bytes per float
-        posOffset = getVertexAttribute(VertexAttributes.Usage.Position, vertexAttributes).offset/4;
-        norOffset = getVertexAttribute(VertexAttributes.Usage.Normal, vertexAttributes).offset/4;
+        vertexFloatSize = vertexAttributes.vertexSize / 4; //4 bytes per float
+        posOffset = getVertexAttribute(VertexAttributes.Usage.Position, vertexAttributes).offset / 4;
+        norOffset = getVertexAttribute(VertexAttributes.Usage.Normal, vertexAttributes).offset / 4;
 
         VertexAttribute colorAttribute = getVertexAttribute(VertexAttributes.Usage.ColorPacked, vertexAttributes);
-        hasColor = colorAttribute!=null;
-        if (hasColor){
-            colOffset = colorAttribute.offset/4;
+        hasColor = colorAttribute != null;
+        if (hasColor) {
+            colOffset = colorAttribute.offset / 4;
             //this.setColor(Color.WHITE, meshVertices);
             this.setColor(Color.WHITE);
         }
         transformDirty = true;
     }
 
-    public void setIndex(int index){
+    public void setIndex(int index) {
         this.index = index;
         transformDirty = true;
         colorDirty = true;
@@ -78,12 +78,12 @@ public class Cube {
     /**
      * Call this after moving and/or rotating.
      */
-    public void update(float[] meshVertices){
-        if (colorDirty && hasColor){
-            for (int faceIndex= 0; faceIndex<6; faceIndex++){
-                int baseVertexIndex = (index*24 + faceIndex*4)*vertexFloatSize;//24 unique vertices per cube, 4 unique vertices per face
-                for (int cornerIndex=0; cornerIndex<4; cornerIndex++){
-                    int vertexIndex = baseVertexIndex + cornerIndex*vertexFloatSize + colOffset;
+    public void update(float[] meshVertices) {
+        if (colorDirty && hasColor) {
+            for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
+                int baseVertexIndex = (index * 24 + faceIndex * 4) * vertexFloatSize;//24 unique vertices per cube, 4 unique vertices per face
+                for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+                    int vertexIndex = baseVertexIndex + cornerIndex * vertexFloatSize + colOffset;
                     meshVertices[vertexIndex] = color.r;
                     meshVertices[++vertexIndex] = color.g;
                     meshVertices[++vertexIndex] = color.b;
@@ -94,36 +94,36 @@ public class Cube {
         }
 
 
-        if (!transformDirty){
+        if (!transformDirty) {
             return;
         }
         transformDirty = false;
 
-        CORNER000.set(-halfWidth,-halfHeight,-halfDepth).rot(rotationTransform).add(position);
-        CORNER010.set(-halfWidth,halfHeight,-halfDepth).rot(rotationTransform).add(position);
-        CORNER100.set(halfWidth,-halfHeight,-halfDepth).rot(rotationTransform).add(position);
-        CORNER110.set(halfWidth,halfHeight,-halfDepth).rot(rotationTransform).add(position);
-        CORNER001.set(-halfWidth,-halfHeight,halfDepth).rot(rotationTransform).add(position);
-        CORNER011.set(-halfWidth,halfHeight,halfDepth).rot(rotationTransform).add(position);
-        CORNER101.set(halfWidth,-halfHeight,halfDepth).rot(rotationTransform).add(position);
-        CORNER111.set(halfWidth,halfHeight,halfDepth).rot(rotationTransform).add(position);
+        CORNER000.set(-halfWidth, -halfHeight, -halfDepth).rot(rotationTransform).add(position);
+        CORNER010.set(-halfWidth, halfHeight, -halfDepth).rot(rotationTransform).add(position);
+        CORNER100.set(halfWidth, -halfHeight, -halfDepth).rot(rotationTransform).add(position);
+        CORNER110.set(halfWidth, halfHeight, -halfDepth).rot(rotationTransform).add(position);
+        CORNER001.set(-halfWidth, -halfHeight, halfDepth).rot(rotationTransform).add(position);
+        CORNER011.set(-halfWidth, halfHeight, halfDepth).rot(rotationTransform).add(position);
+        CORNER101.set(halfWidth, -halfHeight, halfDepth).rot(rotationTransform).add(position);
+        CORNER111.set(halfWidth, halfHeight, halfDepth).rot(rotationTransform).add(position);
 
-        NORMAL0.set(0,0,-1).rot(rotationTransform);
-        NORMAL1.set(0,0,1).rot(rotationTransform);
-        NORMAL2.set(-1,0,0).rot(rotationTransform);
-        NORMAL3.set(1,0,0).rot(rotationTransform);
-        NORMAL4.set(0,-1,0).rot(rotationTransform);
-        NORMAL5.set(0,1,0).rot(rotationTransform);
+        NORMAL0.set(0, 0, -1).rot(rotationTransform);
+        NORMAL1.set(0, 0, 1).rot(rotationTransform);
+        NORMAL2.set(-1, 0, 0).rot(rotationTransform);
+        NORMAL3.set(1, 0, 0).rot(rotationTransform);
+        NORMAL4.set(0, -1, 0).rot(rotationTransform);
+        NORMAL5.set(0, 1, 0).rot(rotationTransform);
 
-        for (int faceIndex= 0; faceIndex<6; faceIndex++){
-            int baseVertexIndex = (index*24 + faceIndex*4)*vertexFloatSize;//24 unique vertices per cube, 4 unique vertices per face
-            for (int cornerIndex=0; cornerIndex<4; cornerIndex++){
-                int vertexIndex = baseVertexIndex + cornerIndex*vertexFloatSize + posOffset;
+        for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
+            int baseVertexIndex = (index * 24 + faceIndex * 4) * vertexFloatSize;//24 unique vertices per cube, 4 unique vertices per face
+            for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+                int vertexIndex = baseVertexIndex + cornerIndex * vertexFloatSize + posOffset;
                 meshVertices[vertexIndex] = FACES[faceIndex][cornerIndex].x;
                 meshVertices[++vertexIndex] = FACES[faceIndex][cornerIndex].y;
                 meshVertices[++vertexIndex] = FACES[faceIndex][cornerIndex].z;
 
-                vertexIndex = baseVertexIndex + cornerIndex*vertexFloatSize + norOffset;
+                vertexIndex = baseVertexIndex + cornerIndex * vertexFloatSize + norOffset;
                 meshVertices[vertexIndex] = NORMALS[faceIndex].x;
                 meshVertices[++vertexIndex] = NORMALS[faceIndex].y;
                 meshVertices[++vertexIndex] = NORMALS[faceIndex].z;
@@ -131,40 +131,40 @@ public class Cube {
         }
     }
 
-    public Cube setColor(Color color){
-        if (hasColor){
+    public Cube setColor(Color color) {
+        if (hasColor) {
             this.color.set(color);
             colorDirty = true;
         }
         return this;
     }
 
-    public Cube translate(float x, float y, float z){
-        position.add(x,y,z);
+    public Cube translate(float x, float y, float z) {
+        position.add(x, y, z);
         transformDirty = true;
         return this;
     }
 
-    public Cube translateTo(float x, float y, float z){
-        position.set(x,y,z);
+    public Cube translateTo(float x, float y, float z) {
+        position.set(x, y, z);
         transformDirty = true;
         return this;
     }
 
-    public Cube rotate(float axisX, float axisY, float axisZ, float degrees){
+    public Cube rotate(float axisX, float axisY, float axisZ, float degrees) {
         rotationTransform.rotate(axisX, axisY, axisZ, degrees);
         transformDirty = true;
         return this;
     }
 
-    public Cube rotateTo(float axisX, float axisY, float axisZ, float degrees){
+    public Cube rotateTo(float axisX, float axisY, float axisZ, float degrees) {
         rotationTransform.idt();
         rotationTransform.rotate(axisX, axisY, axisZ, degrees);
         transformDirty = true;
         return this;
     }
 
-    public VertexAttribute getVertexAttribute (int usage, VertexAttributes attributes) {
+    public VertexAttribute getVertexAttribute(int usage, VertexAttributes attributes) {
         int len = attributes.size();
         for (int i = 0; i < len; i++)
             if (attributes.get(i).usage == usage) return attributes.get(i);
