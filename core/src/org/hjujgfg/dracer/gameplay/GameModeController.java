@@ -13,6 +13,7 @@ public class GameModeController {
     private long lastSwitch;
     private Countdown countdown;
     private volatile long diff;
+    private boolean isInManualSteering;
 
     public GameModeController() {
         this.gameMode = PROBLEM_EVASION;
@@ -42,6 +43,18 @@ public class GameModeController {
             gameMode = PROBLEM_EVASION;
         }
         lastSwitch = System.currentTimeMillis();
+    }
+
+    public void startManualSteering() {
+        isInManualSteering = true;
+    }
+
+    public void stopManualSteering() {
+        isInManualSteering = false;
+    }
+
+    public boolean isInManualSteering() {
+        return isInManualSteering;
     }
 
     public GameMode getGameMode() {

@@ -25,8 +25,13 @@ import static com.badlogic.gdx.math.MathUtils.random;
 import static com.badlogic.gdx.math.MathUtils.randomSign;
 import static org.hjujgfg.dracer.gameplay.BigStatic.MODEL_BUILDER;
 import static org.hjujgfg.dracer.world.models.Materials.createChip;
+import static org.hjujgfg.dracer.world.models.Materials.createClouds;
+import static org.hjujgfg.dracer.world.models.Materials.createEmerald;
+import static org.hjujgfg.dracer.world.models.Materials.createMattDiffuse;
 import static org.hjujgfg.dracer.world.models.Materials.createNeonGrid;
 import static org.hjujgfg.dracer.world.models.Materials.createSilver;
+import static org.hjujgfg.dracer.world.models.Materials.createSomething;
+import static org.hjujgfg.dracer.world.models.Materials.createSun;
 import static org.hjujgfg.dracer.world.params.ParamsSupplierFactory.PROBLEM_SPEED;
 
 public class Terrain implements ModelSupplier, RenderAction {
@@ -52,7 +57,7 @@ public class Terrain implements ModelSupplier, RenderAction {
                     GL20.GL_TRIANGLES,
                     0,
                     fl.mesh.getNumIndices(),
-                    createNeonGrid()
+                    createSomething()
             );
             Model m = MODEL_BUILDER.end();
             models.add(m);
@@ -75,7 +80,7 @@ public class Terrain implements ModelSupplier, RenderAction {
                     GL20.GL_TRIANGLES,
                     0,
                     fl2.mesh.getNumIndices(),
-                    createNeonGrid()
+                    createSomething()
             );
             Model m2 = MODEL_BUILDER.end();
             models.add(m2);
@@ -138,7 +143,7 @@ public class Terrain implements ModelSupplier, RenderAction {
         HeightField field = new HeightField(false, width, height, true,
                 VertexAttributes.Usage.Position
                         | VertexAttributes.Usage.Normal
-                        | VertexAttributes.Usage.ColorUnpacked
+                        //| VertexAttributes.Usage.ColorUnpacked
                         | VertexAttributes.Usage.TextureCoordinates);
         field.corner00.set(0, -5f, -60f);
         field.corner10.set(0f, -5f, -5.3f);

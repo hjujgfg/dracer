@@ -76,6 +76,7 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
     @Override
     public void render() {
         //moveVehicleTouch();
+        steerContinuous();
         stabilize(instance);
     }
 
@@ -99,14 +100,22 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
     }
 
 
-
-    public void steerContinuousAlt() {
-
+    public void changeSteeringVelocitySimple(float velocity) {
+        steeringVelocity = velocity;
     }
 
-    public void steerContinuous(float velocity) {
-        steeringVelocity = velocity;
-        instance.transform.rotate(0, 0, 1, - (steeringVelocity * steeringVelocity) * 2 * signum(steeringVelocity));
+    //@android.annotation.SuppressLint("DefaultLocale")
+    public void changeSteeringVelocity(float velocity) {
+        steeringVelocity += 0.4f * velocity;
+        if (bigger(Math.abs(steeringVelocity), 0.7f)) {
+            steeringVelocity = 0.6f * signum(steeringVelocity);
+        }
+        //Gdx.app.log("Steering", String.format("Velocity: %.3f, steering: %.3f", velocity, steeringVelocity));
+    }
+
+    public void steerContinuous() {
+        //instance.transform.rotate(0, 0, 1, - (steeringVelocity * steeringVelocity) * 2 * signum(steeringVelocity));
+        instance.transform.rotate(0, 0, 1, - signum(steeringVelocity) * 0.5f);
         instance.transform.trn(0, 0, (-steeringVelocity) * 0.4f);
 
         Vector3 pos = instance.transform.getTranslation(TMP);
@@ -202,7 +211,7 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
         Quaternion rotation = instance.transform.getRotation(new Quaternion());
         float targetAngle = 270f;
         float angleAround = rotation.getAngleAround(0, 0, 1);
-        Gdx.app.log("angle around", "angl: " + angleAround);
+        //Gdx.app.log("angle around", "angl: " + angleAround);
         float diff = Math.abs(targetAngle - angleAround);
 
         if (bigger(0.05f, abs(steeringVelocity)) && diff > 0) {
@@ -242,6 +251,14 @@ public class Vehicle implements ModelSupplier, RenderAction, TransformSupplier, 
             if (bigger(translation.x + 0.5f, jumpHeight)) {
                 jumpHeight = -1;
             }
+        }
+
+        if (bigger(steeringVelocity, 0, 0.1f)) {
+            steeringVelocity -= 0.01f;
+        } else if (bigger(0, steeringVelocity, 0.1f)) {
+            steeringVelocity += 0.01f;
+        } else {
+            steeringVelocity = 0;
         }
     }
 

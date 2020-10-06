@@ -24,6 +24,7 @@ public class ContinuousTouchHandler extends ContextualizedInstance {
         prevY = y;
         counter = 1;
         avgVelocity = 0;
+        context.startManualSteering();
     }
 
     public void handleDrag(int x, int y) {
@@ -36,7 +37,7 @@ public class ContinuousTouchHandler extends ContextualizedInstance {
             avgVelocity += diffx;
         }
 
-        context.getVehicle().steerContinuous(prevVelocity);
+        context.getVehicle().changeSteeringVelocity(prevVelocity);
         prevVelocity = velocity;
         if (prevY - y > 100) {
             context.getVehicle().jump();
@@ -51,5 +52,6 @@ public class ContinuousTouchHandler extends ContextualizedInstance {
         prevX = x;
         prevY = y;
         context.getVehicle().steerContinuousStop();
+        context.stopManualSteering();
     }
 }

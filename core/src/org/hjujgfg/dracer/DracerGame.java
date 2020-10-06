@@ -45,6 +45,7 @@ import org.hjujgfg.dracer.events.ProblemPassedEventReader;
 import org.hjujgfg.dracer.gameplay.GameContext;
 import org.hjujgfg.dracer.input.ContinuousTouchAdapter;
 import org.hjujgfg.dracer.shaders.TestShader;
+import org.hjujgfg.dracer.world.autopilot.Autopilot;
 import org.hjujgfg.dracer.world.camera.PerspectiveCameraSupplier;
 import org.hjujgfg.dracer.world.control.ContinuousTouchHandler;
 import org.hjujgfg.dracer.world.interactions.CollisionInteraction;
@@ -140,7 +141,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 				0.7f, 0.7f, 0.7f, 1f)
 		);
 
-		environment.set(new ColorAttribute(ColorAttribute.Fog, Color.FOREST));
+		//environment.set(new ColorAttribute(ColorAttribute.Fog, Color.FOREST));
 
 
 		/*environment.add((shadowLight = new DirectionalShadowLight(
@@ -236,7 +237,16 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		motionBlur.setBlurOpacity(0.5f);
 		//bloom.setBlurPasses(3);
 
-		processor.addEffect(bloom);
+		processor.addEffect(new CrtMonitor(
+				Gdx.graphics.getWidth(),
+				Gdx.graphics.getHeight(),
+				false,
+				true,
+				CrtScreen.RgbMode.RgbShift,
+				CrtScreen.Effect.Scanlines.v | CrtScreen.Effect.PhosphorVibrance.v
+		));
+		bloom.setBloomIntesity(0.1f);
+		//processor.addEffect(bloom);
 		processor.addEffect(motionBlur);
 
 		//processor.addEffect(new Zoomer(3, 3, RadialBlur.Quality.High));
@@ -288,7 +298,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		//cur2 = logTime("vfx clear: ", cur2);
 		processor.capture();
 		floorModelBatch.begin(cameraSupplier.getCamera());
-		floorModelBatch.render(context.modelHolder.getSun().getModels(), environment);
+		floorModelBatch.render(context.modelHolder.getSun().getModels());
 		floorModelBatch.end();
 		//vfxManager.endInputCapture();
 		//vfxManager.applyEffects();
@@ -403,6 +413,7 @@ public class DracerGame extends InputAdapter implements ApplicationListener {
 		renderActions.add(gameEventInteraction);
 		renderActions.add(context.getTerrain());
 		renderActions.add(context.modelHolder.getSun());
+		//renderActions.add(new Autopilot(context));
 	}
 
 	private void setUpEvents() {

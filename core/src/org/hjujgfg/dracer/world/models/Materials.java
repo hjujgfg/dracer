@@ -152,6 +152,27 @@ public class Materials {
         );
     }
 
+    public static Material createSomething() {
+        Texture texture = new Texture(Gdx.files.internal("polygons_wpp2.png"));
+        texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        TextureRegion textureRegion = new TextureRegion(texture);
+        //texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+        //texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        return new Material(
+                //ColorAttribute.createAmbient(0.4f, 1f, 1f, 1),
+                //ColorAttribute.createDiffuse(0.3f, 1f, 1f, 1),
+                //ColorAttribute.createSpecular(0.5f, 1f, 1f, 1),
+                //ColorAttribute.createDiffuse(1f, 1f, 1f, 1),
+                //ColorAttribute.createAmbient(1f, 1f, 1f, 1),
+                //FloatAttribute.createShininess(10f),
+                TextureAttribute.createAmbient(texture),
+                TextureAttribute.createDiffuse(texture),
+                TextureAttribute.createSpecular(texture),
+                TextureAttribute.createBump(texture),
+                TextureAttribute.createEmissive(texture)
+        );
+    }
+
     public static Material createMattDiffuse() {
         return new Material(
                 ColorAttribute.createDiffuse(76, 181, 151, 1)

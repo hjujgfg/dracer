@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.SphereShapeBuilder;
+import com.badlogic.gdx.math.MathUtils;
 
 import org.hjujgfg.dracer.world.interfaces.LightSupplier;
 import org.hjujgfg.dracer.world.interfaces.ModelSupplier;
@@ -31,6 +32,8 @@ public class Sun implements ModelSupplier, RenderAction, LightSupplier<Direction
     private ModelInstance second;
     private Collection<ModelInstance> instances;
     private DirectionalLight directionalLight;
+
+    private int counter;
 
     public Sun() {
         model = createModel(createSun());
@@ -69,6 +72,7 @@ public class Sun implements ModelSupplier, RenderAction, LightSupplier<Direction
     @Override
     public void render() {
         rotate();
+        move();
     }
 
     private Model createModel(Material material) {
@@ -88,5 +92,17 @@ public class Sun implements ModelSupplier, RenderAction, LightSupplier<Direction
     private void rotate() {
         modelInstance.transform.rotate(1, 1, 0, 0.05f);
         second.transform.rotate(1, 0, 1, 0.07f);
+    }
+
+    private void move() {
+        float y = MathUtils.sin(counter / 4.f * MathUtils.PI / 180.f) * 0.1f;
+        float z = MathUtils.cos(counter / 4.f * MathUtils.PI / 180.f) * 0.01f;
+        modelInstance.transform.trn(0, y, z);
+        second.transform.trn(0, y, z);
+
+        counter ++;
+        if (counter == 1440) {
+            counter = 0;
+        }
     }
 }

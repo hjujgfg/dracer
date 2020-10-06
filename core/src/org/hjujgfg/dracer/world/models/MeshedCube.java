@@ -61,7 +61,7 @@ public class MeshedCube implements RenderAction, ModelSupplier {
         MODEL_BUILDER.begin();
         MeshPartBuilder mpb = MODEL_BUILDER.part("cubes", GL20.GL_TRIANGLES,
                 (VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates),
-                createNeonSilver());
+                createSilver());
         for (int i = 0; i < numCubes; i++) {
             BoxShapeBuilder.build(mpb, 0.1f, SIDE, SIDE);
         }

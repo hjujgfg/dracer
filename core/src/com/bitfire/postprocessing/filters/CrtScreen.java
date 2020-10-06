@@ -184,7 +184,7 @@ public final class CrtScreen extends Filter<CrtScreen> {
 	public void setTint (float r, float g, float b) {
 		tint.set(r, g, b, 1f);
 		vtint.set(tint.r, tint.g, tint.b);
-		setParam(Param.Tint, vtint);
+		//setParam(Param.Tint, vtint);
 	}
 
 	public void setDistortion (float distortion) {
@@ -239,7 +239,7 @@ public final class CrtScreen extends Filter<CrtScreen> {
 			setParams(Param.ChromaticDispersion, chromaticDispersion);
 		}
 
-		setParams(Param.Tint, vtint);
+//		setParams(Param.Tint, vtint);
 
 		if (dodistortion) {
 			setParams(Param.Distortion, distortion);
